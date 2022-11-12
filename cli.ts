@@ -1,5 +1,4 @@
 import { parse } from "std/flags/mod.ts";
-import { ensureDirSync } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 import { printError, printLogo } from "@/util/print.ts";
 import { createUser, init, start } from "./mod.ts";

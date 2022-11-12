@@ -20,7 +20,9 @@ export function update(
   if (!Object.hasOwn(curTable.documents, key)) {
     throw "Can't update document if document does not exist";
   }
-  if (curTable.schema !== null) validateSchema(directory, tenant, document, curTable.schema)
+  if (curTable.schema !== null) {
+    validateSchema(directory, tenant, document, curTable.schema);
+  }
   curTable.documents[key] = document;
   writeFile(tablePath, curTable);
   return key;
