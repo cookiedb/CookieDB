@@ -1,6 +1,8 @@
 {
   "tasks": {
-    "fmt": "deno fmt"
+    "fmt": "deno fmt",
+    "dev_setup": "deno run -A cli.ts init ./test",
+    "dev": "deno run -A --watch cli.ts start ./test"
   },
   "importMap": "./import_map.json"
 }
