@@ -1,7 +1,7 @@
 import { resolve } from "std/path/mod.ts";
 import { serve } from "std/http/server.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
-import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.1.0/mod.ts";
+import { cryptoRandomString } from "crypto_random_string";
 
 import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
 import { create } from "@/operations/create.ts";
@@ -10,7 +10,7 @@ import { get } from "@/operations/get.ts";
 import { set } from "@/operations/set.ts";
 import { drop } from "@/operations/drop.ts";
 import { selectQueries, selectQuery } from "@/operations/select.ts";
-import { del } from "./src/operations/delete.ts";
+import { del } from "@/operations/delete.ts";
 
 interface Config {
   port: number;

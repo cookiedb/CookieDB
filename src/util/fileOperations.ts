@@ -1,4 +1,4 @@
-import { pack, unpack } from "https://deno.land/x/msgpackr@v1.7.0/index.js";
+import { pack, unpack } from "msgpackr";
 
 export function readFile(path: string): {
   documents: Record<string, any>;
