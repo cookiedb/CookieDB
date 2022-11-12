@@ -2,8 +2,7 @@ import { parse } from "std/flags/mod.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 import { printError, printLogo } from "@/util/print.ts";
-import config from "@/defaultConfig.json" assert { type: "json" };
-import start from "./mod.ts";
+import { start, init } from "./mod.ts";
 
 const command = parse(Deno.args);
 
@@ -22,15 +21,7 @@ function run(cmd: {
     }
     const dir = resolve(cmd._[1]);
     printLogo(cmd["no-fun"] ? false : true);
-    console.log("Making directory...");
-    ensureDirSync(dir);
-    console.log("Made directory");
-    console.log("Generating config...");
-    Deno.writeTextFileSync(
-      resolve(cmd._[1], "config.json"),
-      JSON.stringify(config, null, 2),
-    );
-    console.log("Generated config");
+    init(dir)
     return;
   }
 

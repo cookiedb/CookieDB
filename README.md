@@ -15,3 +15,4 @@ The API is still under development, so no documentation yet.
 - [ ] add deleting by id
 - [ ] add user creation system
 - [ ] add tests
+- [ ] add help command

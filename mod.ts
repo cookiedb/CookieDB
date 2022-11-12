@@ -1,5 +1,6 @@
 import { resolve } from "std/path/mod.ts";
 import { serve } from "std/http/server.ts";
+import { ensureDirSync } from "std/fs/mod.ts";
 import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
 import { create } from "@/operations/create.ts";
 import { insert } from "@/operations/insert.ts";
@@ -12,7 +13,19 @@ interface Config {
   log: boolean;
 }
 
-export default function start(directory: string) {
+export function init(directory: string) {
+  console.log("Making directory...");
+  ensureDirSync(directory);
+  console.log("Made directory");
+  console.log("Generating config...");
+  Deno.writeTextFileSync(
+    resolve(directory, "config.json"),
+    JSON.stringify(defaultConfig, null, 2),
+  );
+  console.log("Generated config");
+}
+
+export function start(directory: string) {
   const config: Config = {
     ...defaultConfig,
     ...JSON.parse(Deno.readTextFileSync(resolve(directory, "./config.json"))),
