@@ -39,6 +39,7 @@ export function selectQuery(
   opts: QueryOptions,
 ) {
   const tablePath = resolve(directory, tenant, `${table}.ck`);
+  console.log(directory, tenant, table, tablePath)
   const curTable = readFile(tablePath);
 
   const results: any[] = [];

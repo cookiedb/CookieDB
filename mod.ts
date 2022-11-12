@@ -8,6 +8,7 @@ import { get } from "@/operations/get.ts";
 import { set } from "@/operations/set.ts";
 import { drop } from "@/operations/drop.ts";
 import { selectQueries, selectQuery } from "@/operations/select.ts";
+import { del } from "./src/operations/delete.ts";
 
 interface Config {
   port: number;
@@ -75,7 +76,7 @@ export function start(directory: string) {
           if (body.query) {
             const results = selectQuery(
               directory,
-              "hehehaw",
+              tenant,
               table,
               body.query,
               {
@@ -103,6 +104,11 @@ export function start(directory: string) {
   
         case "set": {
           set(directory, tenant, table, key, body);
+          break;
+        }
+        
+        case "delete": {
+          del(directory, tenant, table, key);
           break;
         }
   
