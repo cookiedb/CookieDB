@@ -1,7 +1,5 @@
 {
   "port": "8777",
   "log": false,
-  "users": [
-    
-  ]
+  "users": {}
 }

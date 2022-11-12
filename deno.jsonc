@@ -1,7 +1,7 @@
 {
   "tasks": {
     "fmt": "deno fmt",
-    "dev_setup": "deno run -A cli.ts init ./test",
+    "dev_setup": "deno run -A cli.ts init ./test && deno run -A cli.ts make_user ./test --name=testUser --auth=example",
     "dev": "deno run -A --watch cli.ts start ./test",
     "install": "deno install -A -n cookie ./cli.ts"
   },

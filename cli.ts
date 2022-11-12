@@ -2,7 +2,7 @@ import { parse } from "std/flags/mod.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 import { printError, printLogo } from "@/util/print.ts";
-import { start, init } from "./mod.ts";
+import { start, init, createUser } from "./mod.ts";
 
 const command = parse(Deno.args);
 
@@ -32,6 +32,19 @@ function run(cmd: {
     }
     printLogo(cmd["no-fun"] ? false : true);
     start(dir);
+    return;
+  }
+
+  if(cmd._[0] === "make_user") {
+    let dir = resolve("./");
+    if (cmd._.length === 2 && typeof cmd._[1] === "string") {
+      dir = resolve(cmd._[1]);
+    }
+    const {name, auth} = createUser(dir, {
+      name: cmd.name,
+      auth: cmd.auth
+    })
+    console.log(`Created user "${name}" with bearer token "${auth}"`)
     return;
   }
 

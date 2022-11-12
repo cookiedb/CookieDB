@@ -1,6 +1,8 @@
 import { resolve } from "std/path/mod.ts";
 import { serve } from "std/http/server.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
+import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.1.0/mod.ts"
+
 import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
 import { create } from "@/operations/create.ts";
 import { insert } from "@/operations/insert.ts";
@@ -13,6 +15,7 @@ import { del } from "./src/operations/delete.ts";
 interface Config {
   port: number;
   log: boolean;
+  users: Record<string, string>
 }
 
 export function init(directory: string) {
@@ -50,9 +53,14 @@ export function start(directory: string) {
     const table = path?.[1];
     const key = path?.[2];
 
-    const tenant = "hehehehaw"
 
     try {
+      const authHeader = req.headers.get('authorization')
+      if (authHeader === null) throw "No authorization header"
+      if (authHeader.split("Bearer ").length === 1) throw "Authorization header is not bearer token"
+      if (!Object.hasOwn(config.users, authHeader.replace("Bearer ", ""))) throw "Authorization header invalid"
+      const tenant = config.users[authHeader.replace("Bearer ", "")]
+
       switch (route) {
         case "create": {
           create(directory, tenant, table);
@@ -127,4 +135,25 @@ export function start(directory: string) {
   }, {
     port: config.port,
   });
+}
+
+export function createUser(directory: string, opts: {name?: string, auth?: string}) {
+  const configPath = resolve(directory, "./config.json")
+  const config: Config = JSON.parse(Deno.readTextFileSync(configPath))
+
+  const name = opts.name ?? cryptoRandomString({length: 10})
+  let auth = opts.auth ?? cryptoRandomString({length: 10, type: 'base64'})
+
+  while(Object.hasOwn(config.users, auth)) {
+    auth = cryptoRandomString({length: 10, type: 'base64'})
+  }
+
+  config.users[auth] = name
+
+  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2))
+
+  return {
+    name,
+    auth
+  }
 }
