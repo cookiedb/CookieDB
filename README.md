@@ -11,8 +11,9 @@ The API is still under development, so no documentation yet.
 ## v0.1.0
 
 - [ ] document api
-- [ ] add dropping tables
-- [ ] add deleting by id
-- [ ] add user creation system
+- [x] add dropping tables
+- [x] add deleting by id
+- [x] add user creation system
 - [ ] add tests
-- [ ] add help command
+- [x] add help command
+- [ ] foreign keys
