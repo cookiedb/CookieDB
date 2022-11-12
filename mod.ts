@@ -6,6 +6,7 @@ import { create } from "@/operations/create.ts";
 import { insert } from "@/operations/insert.ts";
 import { get } from "@/operations/get.ts";
 import { set } from "@/operations/set.ts";
+import { drop } from "@/operations/drop.ts";
 import { selectQueries, selectQuery } from "@/operations/select.ts";
 
 interface Config {
@@ -48,20 +49,27 @@ export function start(directory: string) {
     const table = path?.[1];
     const key = path?.[2];
 
-    switch (route) {
-      case "create": {
-        create(directory, "hehehaw", table);
-        break;
-      }
+    const tenant = "hehehehaw"
 
-      case "insert": {
-        const key = insert(directory, "hehehaw", table, body);
-
-        return new Response(key, { status: 200 });
-      }
-
-      case "select": {
-        try {
+    try {
+      switch (route) {
+        case "create": {
+          create(directory, tenant, table);
+          break;
+        }
+  
+        case "drop": {
+          drop(directory, tenant, table);
+          break;
+        }
+  
+        case "insert": {
+          const key = insert(directory, tenant, table, body);
+  
+          return new Response(key, { status: 200 });
+        }
+  
+        case "select": {
           const maxResults = body.max_results ?? 100;
           const showKeys = body.show_keys ?? false;
           if (body.query) {
@@ -77,16 +85,11 @@ export function start(directory: string) {
             );
             return new Response(JSON.stringify(results), { status: 200 });
           }
-          if (!body.queries || !body.statement) {
-            return new Response(
-              "No query or no queries and statement were provided",
-              { status: 400 },
-            );
-          }
+          if (!body.queries || !body.statement) throw "No query or no queries and statement were provided"
 
           const results = selectQueries(
             directory,
-            "hehehaw",
+            tenant,
             table,
             body.queries,
             body.statement,
@@ -96,25 +99,25 @@ export function start(directory: string) {
             },
           );
           return new Response(JSON.stringify(results), { status: 200 });
-        } catch (err) {
-          return new Response(err, { status: 400 });
+        }
+  
+        case "set": {
+          set(directory, tenant, table, key, body);
+          break;
+        }
+  
+        case "get": {
+          return new Response(
+            JSON.stringify(get(directory, tenant, table, key)),
+            { status: 200 },
+          );
         }
       }
-
-      case "set": {
-        set(directory, "hehehaw", table, key, body);
-        break;
-      }
-
-      case "get": {
-        return new Response(
-          JSON.stringify(get(directory, "hehehaw", table, key)),
-          { status: 200 },
-        );
-      }
+      return new Response("success", { status: 200 });
     }
-
-    return new Response("success", { status: 200 });
+    catch(err) {
+      return new Response(err, { status: 400 })
+    }
   }, {
     port: config.port,
   });
