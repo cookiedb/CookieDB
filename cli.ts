@@ -1,7 +1,7 @@
 import { parse } from "std/flags/mod.ts";
 import { ensureDir } from "std/fs/mod.ts"
 import { resolve } from "std/path/mod.ts"
-import { printError, printGradientLogo } from "./src/print.ts";
+import { printError, printLogo } from "./src/print.ts";
 import config from "./src/config.json" assert { type: "json" };
 import start from "./src/start.ts";
 
@@ -11,13 +11,13 @@ function run(cmd: {
   [x: string]: any;
   _: (string | number)[];
 }) {
-  if (cmd._.length === 0) return printError("No arguments provided, try `karma help`")
-
+  if (cmd._.length === 0) return printError("No arguments provided, try `cookie help`")
+  
   if(cmd._[0] === "init") {
     if(cmd._.length < 2) return printError("No directory specified")
     if(typeof cmd._[1] !== "string") return printError("Directory is not valid")
     const dir = resolve(cmd._[1])
-    printGradientLogo()
+    printLogo(cmd["no-fun"] ? false: true)
     console.log("Making directory...")
     ensureDir(dir)
     console.log("Made directory")
@@ -30,12 +30,12 @@ function run(cmd: {
   if(cmd._[0] === "start") {
     let dir = resolve("./")
     if(cmd._.length === 2 && typeof cmd._[1] === "string") dir = resolve(cmd._[1])
-    printGradientLogo()
+    printLogo(cmd["no-fun"] ? false: true)
     start(dir)
     return
   }
 
-  printError("Unrecognized command, type `karma help`")
+  printError("Unrecognized command, type `cookie help`")
 }
 
 run(command);

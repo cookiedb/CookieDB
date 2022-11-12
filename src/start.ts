@@ -5,6 +5,7 @@ import { create } from "./operations/create.ts";
 import { insert } from "./operations/insert.ts";
 import { get } from "./operations/get.ts";
 import { set } from "./operations/set.ts";
+import { selectQueries, selectQuery } from "./operations/select.ts";
 
 interface Config {
   port: number
@@ -23,7 +24,7 @@ export default function start(directory: string) {
 
     if(config.log) console.log(p)
 
-    let body = {}
+    let body: any = {}
     try {
       body = await req.json()
     }
@@ -47,8 +48,27 @@ export default function start(directory: string) {
         return new Response(key, { status: 200 })
       }
 
-      case "match": {
-        break
+      case "select": {
+        try {
+          const maxResults = body.max_results ?? 100
+          const showKeys = body.show_keys ?? false
+          if(body.query) {
+            const results = selectQuery(directory, "hehehaw", table, body.query, {
+              maxResults,
+              showKeys
+            })
+            return new Response(JSON.stringify(results), { status: 200 })
+          }
+          if(!body.queries || !body.statement) return new Response("No query or no queries and statement were provided", { status: 400 })
+
+          const results = selectQueries(directory, "hehehaw", table, body.queries, body.statement, {
+            maxResults,
+            showKeys
+          })
+          return new Response(JSON.stringify(results), { status: 200 })
+        } catch(err) {
+          return new Response(err, { status: 400 })
+        }
       }
 
       case "set": {

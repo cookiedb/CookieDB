@@ -1,6 +1,9 @@
 import { unpack, pack } from 'https://deno.land/x/msgpackr@v1.7.0/index.js'
 
-export function readFile(path: string) {
+export function readFile(path: string): {
+  documents: Record<string, any>,
+  schema: Record<string, any> | null
+} {
   const fileBuffer = Deno.readFileSync(path)
   return unpack(fileBuffer)
 }
