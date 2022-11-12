@@ -1,7 +1,8 @@
 import { resolve } from "std/path/mod.ts";
-import { readFile } from "@/util/fileOperations.ts";
 
+import { readFile } from "@/util/fileOperations.ts";
 import { evaluateCondition, parseCondition } from "@/util/condition.ts";
+import { recursivelyExpandDocument } from "@/util/expandDocument.ts";
 
 interface Match {
   [key: string]: string | Match;
@@ -29,6 +30,7 @@ function documentMatches(document: Record<string, any>, match: Match) {
 interface QueryOptions {
   maxResults: number;
   showKeys: boolean;
+  expandKeys: boolean;
 }
 
 export function selectQuery(
@@ -39,7 +41,15 @@ export function selectQuery(
   opts: QueryOptions,
 ) {
   const tablePath = resolve(directory, tenant, `${table}.ck`);
-  const curTable = readFile(tablePath);
+
+  let curTable: {
+    documents: Record<string, any>;
+  };
+  try {
+    curTable = readFile(tablePath);
+  } catch (_err) {
+    throw "Table does not exist";
+  }
 
   const results: any[] = [];
 
@@ -49,15 +59,18 @@ export function selectQuery(
     }
 
     if (documentMatches(document, match)) {
+      const doc = opts.expandKeys
+        ? recursivelyExpandDocument(directory, tenant, document)
+        : document;
       if (opts.showKeys) {
         results.push({
-          ...document,
+          ...doc,
           ...{
             key,
           },
         });
       } else {
-        results.push(document);
+        results.push(doc);
       }
     }
   }
@@ -74,7 +87,15 @@ export function selectQueries(
   opts: QueryOptions,
 ) {
   const tablePath = resolve(directory, tenant, `${table}.ck`);
-  const curTable = readFile(tablePath);
+
+  let curTable: {
+    documents: Record<string, any>;
+  };
+  try {
+    curTable = readFile(tablePath);
+  } catch (_err) {
+    throw "Table does not exist";
+  }
 
   const results: any[] = [];
 
@@ -90,15 +111,18 @@ export function selectQueries(
     const parseTree = parseCondition(statement, curMatches);
 
     if (evaluateCondition(parseTree)) {
+      const doc = opts.expandKeys
+        ? recursivelyExpandDocument(directory, tenant, document)
+        : document;
       if (opts.showKeys) {
         results.push({
-          ...document,
+          ...doc,
           ...{
             key,
           },
         });
       } else {
-        results.push(document);
+        results.push(doc);
       }
     }
   }

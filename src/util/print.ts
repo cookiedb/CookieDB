@@ -1,4 +1,4 @@
-import { brightRed, rgb24 } from "std/fmt/colors.ts";
+import { bold, brightRed, rgb24 } from "std/fmt/colors.ts";
 
 export function printLogo(gradient: boolean) {
   const logo = " \
@@ -23,7 +23,7 @@ export function printLogo(gradient: boolean) {
         printRow += row[x];
       }
     }
-    console.log(printRow);
+    console.log(bold(printRow));
   }
 }
 

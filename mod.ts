@@ -7,10 +7,11 @@ import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
 import { create } from "@/operations/create.ts";
 import { insert } from "@/operations/insert.ts";
 import { get } from "@/operations/get.ts";
-import { set } from "@/operations/set.ts";
+import { update } from "@/operations/update.ts";
 import { drop } from "@/operations/drop.ts";
-import { selectQueries, selectQuery } from "@/operations/select.ts";
 import { del } from "@/operations/delete.ts";
+import { selectQueries, selectQuery } from "@/operations/select.ts";
+import { ensureTenant } from "@/util/fileOperations.ts";
 
 interface Config {
   port: number;
@@ -42,7 +43,7 @@ export function start(directory: string) {
 
     if (config.log) console.log(p);
 
-    let body: any = {};
+    let body: any = null;
     try {
       body = await req.json();
     } catch (_err) {
@@ -64,9 +65,11 @@ export function start(directory: string) {
       }
       const tenant = config.users[authHeader.replace("Bearer ", "")];
 
+      ensureTenant(directory, tenant);
+
       switch (route) {
         case "create": {
-          create(directory, tenant, table);
+          create(directory, tenant, table, body);
           break;
         }
 
@@ -84,6 +87,7 @@ export function start(directory: string) {
         case "select": {
           const maxResults = body.max_results ?? 100;
           const showKeys = body.show_keys ?? false;
+          const expandKeys = body.expand_keys ?? false;
           if (body.query) {
             const results = selectQuery(
               directory,
@@ -93,6 +97,7 @@ export function start(directory: string) {
               {
                 maxResults,
                 showKeys,
+                expandKeys,
               },
             );
             return new Response(JSON.stringify(results), { status: 200 });
@@ -110,13 +115,14 @@ export function start(directory: string) {
             {
               maxResults,
               showKeys,
+              expandKeys,
             },
           );
           return new Response(JSON.stringify(results), { status: 200 });
         }
 
-        case "set": {
-          set(directory, tenant, table, key, body);
+        case "update": {
+          update(directory, tenant, table, key, body);
           break;
         }
 
@@ -126,8 +132,9 @@ export function start(directory: string) {
         }
 
         case "get": {
+          const expandKeys = body.expand_keys ?? false;
           return new Response(
-            JSON.stringify(get(directory, tenant, table, key)),
+            JSON.stringify(get(directory, tenant, table, key, { expandKeys })),
             { status: 200 },
           );
         }
