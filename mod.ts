@@ -1,7 +1,7 @@
 import { resolve } from "std/path/mod.ts";
 import { serve } from "std/http/server.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
-import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.1.0/mod.ts"
+import { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.1.0/mod.ts";
 
 import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
 import { create } from "@/operations/create.ts";
@@ -15,7 +15,7 @@ import { del } from "./src/operations/delete.ts";
 interface Config {
   port: number;
   log: boolean;
-  users: Record<string, string>
+  users: Record<string, string>;
 }
 
 export function init(directory: string) {
@@ -53,31 +53,34 @@ export function start(directory: string) {
     const table = path?.[1];
     const key = path?.[2];
 
-
     try {
-      const authHeader = req.headers.get('authorization')
-      if (authHeader === null) throw "No authorization header"
-      if (authHeader.split("Bearer ").length === 1) throw "Authorization header is not bearer token"
-      if (!Object.hasOwn(config.users, authHeader.replace("Bearer ", ""))) throw "Authorization header invalid"
-      const tenant = config.users[authHeader.replace("Bearer ", "")]
+      const authHeader = req.headers.get("authorization");
+      if (authHeader === null) throw "No authorization header";
+      if (authHeader.split("Bearer ").length === 1) {
+        throw "Authorization header is not bearer token";
+      }
+      if (!Object.hasOwn(config.users, authHeader.replace("Bearer ", ""))) {
+        throw "Authorization header invalid";
+      }
+      const tenant = config.users[authHeader.replace("Bearer ", "")];
 
       switch (route) {
         case "create": {
           create(directory, tenant, table);
           break;
         }
-  
+
         case "drop": {
           drop(directory, tenant, table);
           break;
         }
-  
+
         case "insert": {
           const key = insert(directory, tenant, table, body);
-  
+
           return new Response(key, { status: 200 });
         }
-  
+
         case "select": {
           const maxResults = body.max_results ?? 100;
           const showKeys = body.show_keys ?? false;
@@ -94,7 +97,9 @@ export function start(directory: string) {
             );
             return new Response(JSON.stringify(results), { status: 200 });
           }
-          if (!body.queries || !body.statement) throw "No query or no queries and statement were provided"
+          if (!body.queries || !body.statement) {
+            throw "No query or no queries and statement were provided";
+          }
 
           const results = selectQueries(
             directory,
@@ -109,17 +114,17 @@ export function start(directory: string) {
           );
           return new Response(JSON.stringify(results), { status: 200 });
         }
-  
+
         case "set": {
           set(directory, tenant, table, key, body);
           break;
         }
-        
+
         case "delete": {
           del(directory, tenant, table, key);
           break;
         }
-  
+
         case "get": {
           return new Response(
             JSON.stringify(get(directory, tenant, table, key)),
@@ -128,32 +133,34 @@ export function start(directory: string) {
         }
       }
       return new Response("success", { status: 200 });
-    }
-    catch(err) {
-      return new Response(err, { status: 400 })
+    } catch (err) {
+      return new Response(err, { status: 400 });
     }
   }, {
     port: config.port,
   });
 }
 
-export function createUser(directory: string, opts: {name?: string, auth?: string}) {
-  const configPath = resolve(directory, "./config.json")
-  const config: Config = JSON.parse(Deno.readTextFileSync(configPath))
+export function createUser(
+  directory: string,
+  opts: { name?: string; auth?: string },
+) {
+  const configPath = resolve(directory, "./config.json");
+  const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
 
-  const name = opts.name ?? cryptoRandomString({length: 10})
-  let auth = opts.auth ?? cryptoRandomString({length: 10, type: 'base64'})
+  const name = opts.name ?? cryptoRandomString({ length: 10 });
+  let auth = opts.auth ?? cryptoRandomString({ length: 10, type: "base64" });
 
-  while(Object.hasOwn(config.users, auth)) {
-    auth = cryptoRandomString({length: 10, type: 'base64'})
+  while (Object.hasOwn(config.users, auth)) {
+    auth = cryptoRandomString({ length: 10, type: "base64" });
   }
 
-  config.users[auth] = name
+  config.users[auth] = name;
 
-  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2))
+  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2));
 
   return {
     name,
-    auth
-  }
+    auth,
+  };
 }

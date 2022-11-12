@@ -2,7 +2,7 @@ import { parse } from "std/flags/mod.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
 import { resolve } from "std/path/mod.ts";
 import { printError, printLogo } from "@/util/print.ts";
-import { start, init, createUser } from "./mod.ts";
+import { createUser, init, start } from "./mod.ts";
 
 const command = parse(Deno.args);
 
@@ -14,7 +14,7 @@ function run(cmd: {
     return printError("No arguments provided, try `cookie help`");
   }
 
-  switch(cmd._[0]) {
+  switch (cmd._[0]) {
     case "init": {
       if (cmd._.length < 2) return printError("No directory specified");
       if (typeof cmd._[1] !== "string") {
@@ -22,7 +22,7 @@ function run(cmd: {
       }
       const dir = resolve(cmd._[1]);
       printLogo(cmd["no-fun"] ? false : true);
-      init(dir)
+      init(dir);
       return;
     }
 
@@ -38,15 +38,21 @@ function run(cmd: {
 
     case "help": {
       printLogo(cmd["no-fun"] ? false : true);
-      console.log("Welcome to CookieDB, to get started please check out our github: https://github.com/cookiedb/CookieDB\n")
-      console.log("Commands:")
-      console.log("- help: show this screen (`cookie help`)")
-      console.log("- init: initialize a database within a specific directory (`cookie init ./test`)")
-      console.log("- make_user: generate a user account for the database (`cookie make_user ./test --name=admin`)")
-      console.log("- start: start the database (`cookie start ./test`)")
-      
-      console.log("\nFlags:")
-      console.log("--no-fun: turns off the gradient logo")
+      console.log(
+        "Welcome to CookieDB, to get started please check out our github: https://github.com/cookiedb/CookieDB\n",
+      );
+      console.log("Commands:");
+      console.log("- help: show this screen (`cookie help`)");
+      console.log(
+        "- init: initialize a database within a specific directory (`cookie init ./test`)",
+      );
+      console.log(
+        "- make_user: generate a user account for the database (`cookie make_user ./test --name=admin`)",
+      );
+      console.log("- start: start the database (`cookie start ./test`)");
+
+      console.log("\nFlags:");
+      console.log("--no-fun: turns off the gradient logo");
 
       return;
     }
@@ -57,18 +63,17 @@ function run(cmd: {
         dir = resolve(cmd._[1]);
       }
       printLogo(cmd["no-fun"] ? false : true);
-      const {name, auth} = createUser(dir, {
+      const { name, auth } = createUser(dir, {
         name: cmd.name,
-        auth: cmd.auth
-      })
-      console.log(`Created user "${name}" with bearer token "${auth}"`)
+        auth: cmd.auth,
+      });
+      console.log(`Created user "${name}" with bearer token "${auth}"`);
       return;
     }
 
     default:
       printError("Unrecognized command, type `cookie help`");
   }
-
 }
 
 run(command);

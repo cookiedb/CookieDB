@@ -9,9 +9,8 @@ export function drop(directory: string, tenant: string, table: string) {
   const tablePath = resolve(directory, tenant, `${table}.ck`);
 
   try {
-    Deno.removeSync(tablePath)
-  }
-  catch(err) {
-    throw "Cannot drop table if doesn't exist"
+    Deno.removeSync(tablePath);
+  } catch (err) {
+    throw "Cannot drop table if doesn't exist";
   }
 }
