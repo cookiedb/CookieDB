@@ -3,7 +3,8 @@
     "fmt": "deno fmt",
     "dev_setup": "deno run -A cli.ts init ./test && deno run -A cli.ts make_user ./test --name=testUser --auth=example",
     "dev": "deno run -A --watch cli.ts start ./test",
-    "install": "deno install -Af -n cookie ./cli.ts"
+    "install": "deno install -Af -n cookie ./cli.ts",
+    "test": "deno test -A"
   },
   "importMap": "./import_map.json"
 }
