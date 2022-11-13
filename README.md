@@ -123,7 +123,7 @@ const req = await fetch("/create/users", {
   }),
 });
 
-const res = await res.text(); // "success"
+const res = await req.text(); // "success"
 ```
 
 #### POST: `/drop/:table:`
@@ -141,7 +141,7 @@ const req = await fetch("/drop/users", {
   },
 });
 
-const res = await res.text(); // "success"
+const res = await req.text(); // "success"
 ```
 
 #### POST: `/insert/:table:`
@@ -168,7 +168,7 @@ const req = await fetch("/insert/users", {
   }),
 });
 
-const res = await res.text(); // key of record, ex: "b94a8779-f737-466b-ac40-4dfb130f0eee"
+const res = await req.text(); // key of record, ex: "b94a8779-f737-466b-ac40-4dfb130f0eee"
 ```
 
 #### POST: `/get/:table:/:key:`
@@ -193,7 +193,7 @@ const req = await fetch("/insert/users/b94a8779-f737-466b-ac40-4dfb130f0eee", {
   }),
 });
 
-const res = await res.json(); // JSON object representing document, ex: { name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}
+const res = await req.json(); // JSON object representing document, ex: { name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}
 ```
 
 #### POST: `/delete/:table:/:key:`
@@ -211,7 +211,7 @@ const req = await fetch("/delete/users/b94a8779-f737-466b-ac40-4dfb130f0eee", {
   },
 });
 
-const res = await res.text(); // "success"
+const res = await req.text(); // "success"
 ```
 
 #### POST: `/update/:table:/:key:`
@@ -239,7 +239,7 @@ const req = await fetch("/update/users/b94a8779-f737-466b-ac40-4dfb130f0eee", {
   }),
 });
 
-const res = await res.text(); // "success"
+const res = await req.text(); // "success"
 ```
 
 #### POST: `/select/:table:`
@@ -350,7 +350,7 @@ represents the value at that specific key. There are quite a few operators:
   - ex: `not(false)`
 - `in_range`
   - Takes in an input number, a minimum, and a maximum number. It will return
-    true if it is in the range, otherwise it will return false.
+    true if the input is in the range, otherwise it will return false.
   - ex: `in_range(5, 0, 10)`
 - `coalesce`
   - Takes in any number of inputs and returns the first non-null one
@@ -493,5 +493,5 @@ const req = await fetch("/select/users", {
   }),
 });
 
-const res = await res.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
+const res = await req.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
 ```
