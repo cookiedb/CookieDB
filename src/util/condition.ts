@@ -165,6 +165,143 @@ export function evaluateCondition(parsedTree: validTypes) {
         throw "Expected children of lt_or_eq to be a number";
       }
       return children[0] <= children[1];
+    
+    case "subtract":
+      if (children.length !== 2) throw "Expected 2 children for subtract";
+      if (typeof children[0] !== "number" || typeof children[1] !== "number") {
+        throw "Expected children of subtract to be a number";
+      }
+      return children[0] - children[1];
+    
+    case "divide":
+      if (children.length !== 2) throw "Expected 2 children for divide";
+      if (typeof children[0] !== "number" || typeof children[1] !== "number") {
+        throw "Expected children of divide to be a number";
+      }
+      return children[1] === 0 ? null : (children[0] / children[1]);
+    
+    case "add":
+      return children.reduce((prev, cur) => prev + cur, 0);
+    
+    case "multiply":
+      return children.reduce((prev, cur) => prev * cur, 1);
+
+    case "current_time":
+      return Date.now();
+    
+    case "to_date_string":
+      return (new Date(children[0])).toUTCString();
+    
+    case "year":
+      return (new Date(children[0])).getUTCFullYear();
+      
+    case "month":
+      return (new Date(children[0])).getUTCMonth();
+    
+    case "hour":
+      return (new Date(children[0])).getUTCHours();
+
+    case "minute":
+      return (new Date(children[0])).getUTCMinutes();
+
+    case "second":
+      return (new Date(children[0])).getUTCSeconds();
+    
+    case "day_of_week":
+      return (new Date(children[0])).getUTCDay();
+
+    case "day_of_month":
+      return (new Date(children[0])).getUTCDate();
+
+    case "if_else":
+      return children[0] ? children[1] : children[2]
+
+    case "not":
+      return !children[0]
+    
+    case "in_range":
+      return children[0] > children[1] && children[0] < children[2]
+    
+    case "coalesce":
+      return children.reduce((prev, cur) => prev === null ? cur : prev, null);
+
+    case "abs":
+      return Math.abs(children[0])
+    
+    case "asin":
+      return Math.asin(children[0])
+    
+    case "acos":
+      return Math.acos(children[0])
+    
+    case "atan":
+      return Math.atan(children[0])
+    
+    case "atan2":
+      return Math.atan2(children[0], children[1])
+    
+    case "average":
+      return children.reduce((prev, cur) => prev + cur, 0) / children.length
+    
+    case "ceil":
+      return Math.ceil(children[0])
+
+    case "floor":
+      return Math.floor(children[0])
+
+    case "round":
+      return Math.round(children[0])
+    
+    case "sin":
+      return Math.sin(children[0])
+
+    case "cos":
+      return Math.cos(children[0])
+
+    case "tan":
+      return Math.tan(children[0])
+    
+    case "sec":
+      return Math.cos(children[0]) === 0 ? null : (1 /  Math.cos(children[0]))
+
+    case "csc":
+      return Math.sin(children[0]) === 0 ? null : (1 /  Math.sin(children[0]))
+
+    case "cot":
+      return Math.tan(children[0]) === 0 ? null : (1 /  Math.tan(children[0]))
+    
+    case "degrees":
+      return children[0] * (Math.PI/180)
+    
+    case "radians":
+      return children[0] * (180/Math.PI)
+    
+    case "exp":
+      return Math.exp(children[0])
+    
+    case "power":
+      return Math.pow(children[0], children[1])
+
+    case "log":
+      return Math.log(children[0]) / Math.log(children[1])
+    
+    case "max":
+      return children.reduce((prev, cur) => Math.max(prev, cur), Number.MIN_SAFE_INTEGER)
+    
+    case "min":
+      return children.reduce((prev, cur) => Math.min(prev, cur), Number.MAX_SAFE_INTEGER)
+
+    case "pi":
+      return Math.PI
+    
+    case "random":
+      return Math.random()
+    
+    case "sign":
+      return children[0] > 0 ? 1 : (children[0] === 0 ? 0 : -1)
+    
+    case "sqrt":
+      return Math.sqrt(children[0])
 
     default:
       throw (`Unknown condition: ${parsedTree.condition}`);
