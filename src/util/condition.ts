@@ -41,6 +41,7 @@ export function parseCondition(
       if (typeof val === "object" && val !== null) {
         return val[parseInt(condition.replace("$", "") || "0")];
       }
+
       return val;
     }
 

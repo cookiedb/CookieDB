@@ -1,5 +1,5 @@
 import { resolve } from "std/path/mod.ts";
-import { serve } from "std/http/server.ts";
+import { serve, serveTls } from "std/http/server.ts";
 import { ensureDirSync } from "std/fs/mod.ts";
 import { cryptoRandomString } from "crypto_random_string";
 
@@ -17,6 +17,8 @@ interface Config {
   port: number;
   log: boolean;
   users: Record<string, string>;
+  cert_file?: string;
+  key_file?: string;
 }
 
 export function init(directory: string) {
@@ -37,7 +39,7 @@ export function start(directory: string) {
     ...JSON.parse(Deno.readTextFileSync(resolve(directory, "./config.json"))),
   };
 
-  serve(async (req: Request) => {
+  const serveRequest = async (req: Request) => {
     const url = new URL(req.url);
     const p = url.pathname;
 
@@ -85,6 +87,7 @@ export function start(directory: string) {
         }
 
         case "select": {
+          body = body ?? {};
           const maxResults = body.max_results ?? 100;
           const showKeys = body.show_keys ?? false;
           const expandKeys = body.expand_keys ?? false;
@@ -132,6 +135,7 @@ export function start(directory: string) {
         }
 
         case "get": {
+          body = body ?? {};
           const expandKeys = body.expand_keys ?? false;
           return new Response(
             JSON.stringify(get(directory, tenant, table, key, { expandKeys })),
@@ -143,9 +147,19 @@ export function start(directory: string) {
     } catch (err) {
       return new Response(err, { status: 400 });
     }
-  }, {
-    port: config.port,
-  });
+  };
+
+  if (config.cert_file && config.key_file) {
+    serveTls(serveRequest, {
+      port: config.port,
+      certFile: config.cert_file,
+      keyFile: config.key_file,
+    });
+  } else {
+    serve(serveRequest, {
+      port: config.port,
+    });
+  }
 }
 
 export function createUser(
@@ -156,10 +170,10 @@ export function createUser(
   const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
 
   const name = opts.name ?? cryptoRandomString({ length: 10 });
-  let auth = opts.auth ?? cryptoRandomString({ length: 10, type: "base64" });
+  let auth = opts.auth ?? cryptoRandomString({ length: 32, type: "base64" });
 
   while (Object.hasOwn(config.users, auth)) {
-    auth = cryptoRandomString({ length: 10, type: "base64" });
+    auth = cryptoRandomString({ length: 32, type: "base64" });
   }
 
   config.users[auth] = name;

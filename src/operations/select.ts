@@ -20,7 +20,7 @@ function documentMatches(document: Record<string, any>, match: Match) {
       const parseTree = parseCondition(m, val);
       if (!evaluateCondition(parseTree)) return false;
     } else {
-      if (!documentMatches(m, val)) return false;
+      if (!documentMatches(val, m)) return false;
     }
   }
 

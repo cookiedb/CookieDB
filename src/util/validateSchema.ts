@@ -31,13 +31,22 @@ export function validateSchema(
     if (
       value !== null && typeof value === "object" && typeof rawSpec !== "object"
     ) {
-      throw `Expected ${rawSpec} for key "${key}", got "${
+      throw `Expected ${JSON.stringify(rawSpec)} for key "${key}", got "${
         JSON.stringify(value)
-      }"`;
+      } instead"`;
     }
     if (typeof value === "object" && value !== null) {
       validateSchema(directory, tenant, document[key], schema[key]);
       continue;
+    }
+
+    if (
+      typeof rawSpec === "object" &&
+      (typeof value !== "object" || value === null)
+    ) {
+      throw `Expected ${JSON.stringify(rawSpec)} for key "${key}", got "${
+        JSON.stringify(value)
+      }" instead`;
     }
 
     const spec: "string" | "boolean" | "number" | "foreign_key" = rawSpec
