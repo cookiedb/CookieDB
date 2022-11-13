@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "std/testing/asserts.ts";
+import { assertEquals } from "std/testing/asserts.ts";
 import { createUser, init, start } from "./mod.ts";
 
 let authHeader = "";
