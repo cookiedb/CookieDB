@@ -13,7 +13,7 @@ executable. If you still insist on trying it out,
 [install deno](https://deno.land/#installation), then run the following command:
 
 ```bash
-deno install -A -n cookie https://deno.land/x/cookiedb
+deno install -A -n cookie https://deno.land/x/cookiedb/cli.ts
 ```
 
 ## Getting Started
