@@ -1,8 +1,7 @@
-import { resolve } from "std/path/mod.ts";
-
-import { readFile } from "@/util/fileOperations.ts";
-import { evaluateCondition, parseCondition } from "@/util/condition.ts";
-import { recursivelyExpandDocument } from "@/util/expandDocument.ts";
+import { resolve } from "../../deps.ts";
+import { readFile } from "../util/fileOperations.ts";
+import { evaluateCondition, parseCondition } from "../util/condition.ts";
+import { recursivelyExpandDocument } from "../util/expandDocument.ts";
 
 interface Match {
   [key: string]: string | Match;

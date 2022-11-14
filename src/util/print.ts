@@ -1,4 +1,4 @@
-import { bold, brightRed, rgb24 } from "std/fmt/colors.ts";
+import { bold, brightRed, rgb24 } from "../../deps.ts";
 
 export function printLogo(gradient: boolean) {
   const logo = " \

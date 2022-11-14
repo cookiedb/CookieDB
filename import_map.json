@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "std/": "https://deno.land/std@0.163.0/",
-    "msgpackr": "https://deno.land/x/msgpackr@v1.7.0/index.js",
-    "crypto_random_string": "https://deno.land/x/crypto_random_string@1.1.0/mod.ts",
-    "@/": "./src/"
-  }
-}

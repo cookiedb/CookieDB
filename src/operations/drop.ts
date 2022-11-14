@@ -1,5 +1,5 @@
-import { resolve } from "std/path/mod.ts";
-import { readFile, writeFile } from "@/util/fileOperations.ts";
+import { resolve } from "../../deps.ts";
+import { readFile, writeFile } from "../util/fileOperations.ts";
 
 export function drop(directory: string, tenant: string, table: string) {
   // Make file if not exists

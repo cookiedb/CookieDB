@@ -1,5 +1,6 @@
-import { assert } from "std/testing/asserts.ts";
-import { evaluateCondition, parseCondition } from "@/util/condition.ts";
+import { assert } from "../../deps.ts";
+
+import { evaluateCondition, parseCondition } from "./condition.ts";
 
 const evaluate = (condition: string) => {
   return evaluateCondition(parseCondition(condition, ""));
