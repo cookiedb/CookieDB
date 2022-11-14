@@ -1,6 +1,6 @@
-import { parse } from "std/flags/mod.ts";
-import { resolve } from "std/path/mod.ts";
-import { printError, printLogo } from "@/util/print.ts";
+import { parse } from "./deps.ts";
+import { resolve } from "./deps.ts";
+import { printError, printLogo } from "./src/util/print.ts";
 import { createUser, init, start } from "./mod.ts";
 
 const command = parse(Deno.args);

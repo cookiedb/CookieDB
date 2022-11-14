@@ -1,6 +1,6 @@
-import { resolve } from "std/path/mod.ts";
-import { readFile, writeFile } from "@/util/fileOperations.ts";
-import { validateSchema } from "@/util/validateSchema.ts";
+import { resolve } from "../../deps.ts";
+import { readFile, writeFile } from "../util/fileOperations.ts";
+import { validateSchema } from "../util/validateSchema.ts";
 
 export function insert(
   directory: string,

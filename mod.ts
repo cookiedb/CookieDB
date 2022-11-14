@@ -1,17 +1,20 @@
-import { resolve } from "std/path/mod.ts";
-import { serve, serveTls } from "std/http/server.ts";
-import { ensureDirSync } from "std/fs/mod.ts";
-import { cryptoRandomString } from "crypto_random_string";
+import {
+  cryptoRandomString,
+  ensureDirSync,
+  resolve,
+  serve,
+  serveTls,
+} from "./deps.ts";
 
-import defaultConfig from "@/defaultConfig.json" assert { type: "json" };
-import { create } from "@/operations/create.ts";
-import { insert } from "@/operations/insert.ts";
-import { get } from "@/operations/get.ts";
-import { update } from "@/operations/update.ts";
-import { drop } from "@/operations/drop.ts";
-import { del } from "@/operations/delete.ts";
-import { selectQueries, selectQuery } from "@/operations/select.ts";
-import { ensureTenant } from "@/util/fileOperations.ts";
+import defaultConfig from "./src/defaultConfig.json" assert { type: "json" };
+import { create } from "./src/operations/create.ts";
+import { insert } from "./src/operations/insert.ts";
+import { get } from "./src/operations/get.ts";
+import { update } from "./src/operations/update.ts";
+import { drop } from "./src/operations/drop.ts";
+import { del } from "./src/operations/delete.ts";
+import { selectQueries, selectQuery } from "./src/operations/select.ts";
+import { ensureTenant } from "./src/util/fileOperations.ts";
 
 interface Config {
   port: number;

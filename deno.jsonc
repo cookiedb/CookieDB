@@ -5,6 +5,5 @@
     "dev": "deno run -A --watch cli.ts start ./test",
     "install": "deno install -Af -n cookie ./cli.ts",
     "test": "deno test -A"
-  },
-  "importMap": "./import_map.json"
+  }
 }

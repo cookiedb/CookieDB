@@ -1,6 +1,4 @@
-import { pack, unpack } from "msgpackr";
-import { ensureDirSync } from "std/fs/mod.ts";
-import { resolve } from "std/path/mod.ts";
+import { ensureDirSync, pack, resolve, unpack } from "../../deps.ts";
 
 export function readFile(path: string) {
   const fileBuffer = Deno.readFileSync(path);

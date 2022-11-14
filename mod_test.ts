@@ -1,11 +1,15 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assertEquals } from "./deps.ts";
 import { createUser, init, start } from "./mod.ts";
 
 let authHeader = "";
 
 Deno.test("Set up database", () => {
   // delete folder to get fresh start
-  Deno.removeSync("./test", { recursive: true });
+  try {
+    Deno.removeSync("./test", { recursive: true });
+  } catch (_err) {
+    // no op, the directory didn't already exist
+  }
 
   // initialize the database folder
   init("./test");

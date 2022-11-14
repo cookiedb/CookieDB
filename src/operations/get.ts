@@ -1,5 +1,5 @@
-import { resolve } from "std/path/mod.ts";
-import { readFile } from "@/util/fileOperations.ts";
+import { resolve } from "../../deps.ts";
+import { readFile } from "../util/fileOperations.ts";
 import { recursivelyExpandDocument } from "../util/expandDocument.ts";
 
 interface GetOptions {
