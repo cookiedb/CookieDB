@@ -43,7 +43,7 @@ Deno.test("Examples in README work", () => {
   assert(evaluate("eq(asin(0), 0)"));
   assert(evaluate("eq(acos(1), 0)"));
   assert(evaluate("eq(atan(0), 0)"));
-  assert(evaluate("atan(1, 1)"));
+  assert(evaluate("atan2(1, 1)"));
   assert(evaluate("eq(average(0, 5, 10), 5)"));
   assert(evaluate("eq(ceil(5.1), 6)"));
   assert(evaluate("eq(floor(5.1), 5)"));

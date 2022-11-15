@@ -211,7 +211,7 @@ export function evaluateCondition(parsedTree: validTypes) {
           throw "Expected a numeric child for multiply";
         }
       }
-      return (children as number[]).reduce((prev, cur) => prev * cur, 0);
+      return (children as number[]).reduce((prev, cur) => prev * cur, 1);
 
     case "current_time":
       return Date.now();
