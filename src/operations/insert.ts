@@ -1,12 +1,13 @@
 import { resolve } from "../../deps.ts";
 import { readFile, writeFile } from "../util/fileOperations.ts";
+import { Document } from "../util/types.ts";
 import { validateSchema } from "../util/validateSchema.ts";
 
 export function insert(
   directory: string,
   tenant: string,
   table: string,
-  document: Record<string, any>,
+  document: Document,
 ) {
   const metaPath = resolve(directory, tenant, "__meta__.ck");
   const tablePath = resolve(directory, tenant, `${table}.ck`);

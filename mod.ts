@@ -48,6 +48,7 @@ export function start(directory: string) {
 
     if (config.log) console.log(p);
 
+    // deno-lint-ignore no-explicit-any
     let body: any = null;
     try {
       body = await req.json();

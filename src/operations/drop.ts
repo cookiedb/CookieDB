@@ -15,7 +15,7 @@ export function drop(directory: string, tenant: string, table: string) {
     writeFile(metaPath, metaTable);
 
     Deno.removeSync(tablePath);
-  } catch (err) {
+  } catch (_err) {
     throw "Cannot drop table if doesn't exist";
   }
 }

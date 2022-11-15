@@ -1,5 +1,6 @@
 import { resolve } from "../../deps.ts";
 import { readFile, writeFile } from "../util/fileOperations.ts";
+import { Document } from "../util/types.ts";
 import { validateSchema } from "../util/validateSchema.ts";
 
 export function update(
@@ -7,7 +8,7 @@ export function update(
   tenant: string,
   table: string,
   key: string,
-  document: Record<string, any>,
+  document: Document,
 ) {
   const tablePath = resolve(directory, tenant, `${table}.ck`);
 

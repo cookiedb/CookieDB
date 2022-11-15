@@ -6,6 +6,7 @@ import { createUser, init, start } from "./mod.ts";
 const command = parse(Deno.args);
 
 function run(cmd: {
+  // deno-lint-ignore no-explicit-any
   [x: string]: any;
   _: (string | number)[];
 }) {
