@@ -2,12 +2,13 @@ import { resolve } from "../../deps.ts";
 import { readFile } from "../util/fileOperations.ts";
 import { evaluateCondition, parseCondition } from "../util/condition.ts";
 import { recursivelyExpandDocument } from "../util/expandDocument.ts";
+import { Document, PossibleTypes } from "../util/types.ts";
 
 interface Match {
   [key: string]: string | Match;
 }
 
-function documentMatches(document: Record<string, any>, match: Match) {
+function documentMatches(document: Document, match: Match) {
   for (const [key, m] of Object.entries(match)) {
     if (!Object.hasOwn(document, key)) {
       return false;
@@ -16,10 +17,10 @@ function documentMatches(document: Record<string, any>, match: Match) {
     const val = document[key];
 
     if (typeof m === "string") {
-      const parseTree = parseCondition(m, val);
+      const parseTree = parseCondition(m, val as PossibleTypes);
       if (!evaluateCondition(parseTree)) return false;
     } else {
-      if (!documentMatches(val, m)) return false;
+      if (!documentMatches(val as Document, m)) return false;
     }
   }
 
@@ -42,7 +43,7 @@ export function selectQuery(
   const tablePath = resolve(directory, tenant, `${table}.ck`);
 
   let curTable: {
-    documents: Record<string, any>;
+    documents: Record<string, Document>;
   };
   try {
     curTable = readFile(tablePath);
@@ -50,7 +51,7 @@ export function selectQuery(
     throw "Table does not exist";
   }
 
-  const results: any[] = [];
+  const results: Document[] = [];
 
   for (const [key, document] of Object.entries(curTable.documents)) {
     if (opts.maxResults === results.length) {
@@ -61,6 +62,7 @@ export function selectQuery(
       const doc = opts.expandKeys
         ? recursivelyExpandDocument(directory, tenant, document)
         : document;
+
       if (opts.showKeys) {
         results.push({
           ...doc,
@@ -88,7 +90,7 @@ export function selectQueries(
   const tablePath = resolve(directory, tenant, `${table}.ck`);
 
   let curTable: {
-    documents: Record<string, any>;
+    documents: Record<string, Document>;
   };
   try {
     curTable = readFile(tablePath);
@@ -96,7 +98,7 @@ export function selectQueries(
     throw "Table does not exist";
   }
 
-  const results: any[] = [];
+  const results: Document[] = [];
 
   for (const [key, document] of Object.entries(curTable.documents)) {
     if (opts.maxResults === results.length) {

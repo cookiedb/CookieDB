@@ -1,4 +1,6 @@
-type validTypes = ParseTree | string | boolean | number | null;
+import { PossibleTypes } from "./types.ts";
+
+type validTypes = ParseTree | PossibleTypes;
 
 interface ParseTree {
   condition: string;
@@ -7,7 +9,7 @@ interface ParseTree {
 
 export function parseCondition(
   condition: string,
-  val: string | boolean | number | null | any[],
+  val: PossibleTypes | PossibleTypes[],
 ): validTypes {
   condition = condition.trim();
   const functionAndInputsRegex = /^(.+?)\((.*)\)$/;
@@ -112,7 +114,7 @@ export function evaluateCondition(parsedTree: validTypes) {
     typeof parsedTree === "boolean" || parsedTree === null
   ) return parsedTree;
 
-  const children: any[] = parsedTree.children.map((child) =>
+  const children: PossibleTypes[] = parsedTree.children.map((child) =>
     evaluateCondition(child)
   );
 
@@ -198,36 +200,76 @@ export function evaluateCondition(parsedTree: validTypes) {
       return children[1] === 0 ? null : (children[0] / children[1]);
 
     case "add":
-      return children.reduce((prev, cur) => prev + cur, 0);
+      for (const child of children) {
+        if (typeof child !== "number") throw "Expected a numeric child for add";
+      }
+      return (children as number[]).reduce((prev, cur) => prev + cur, 0);
 
     case "multiply":
-      return children.reduce((prev, cur) => prev * cur, 1);
+      for (const child of children) {
+        if (typeof child !== "number") {
+          throw "Expected a numeric child for multiply";
+        }
+      }
+      return (children as number[]).reduce((prev, cur) => prev * cur, 0);
 
     case "current_time":
       return Date.now();
 
     case "to_date_string":
+      if (children.length !== 1) throw "Expected a child for to_date_string";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for to_date_string";
+      }
       return (new Date(children[0])).toUTCString();
 
     case "year":
+      if (children.length !== 1) throw "Expected a child for year";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for year";
+      }
       return (new Date(children[0])).getUTCFullYear();
 
     case "month":
+      if (children.length !== 1) throw "Expected a child for month";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for month";
+      }
       return (new Date(children[0])).getUTCMonth();
 
     case "hour":
+      if (children.length !== 1) throw "Expected a child for hour";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for hour";
+      }
       return (new Date(children[0])).getUTCHours();
 
     case "minute":
+      if (children.length !== 1) throw "Expected a child for minute";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for minute";
+      }
       return (new Date(children[0])).getUTCMinutes();
 
     case "second":
+      if (children.length !== 1) throw "Expected a child for second";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for second";
+      }
       return (new Date(children[0])).getUTCSeconds();
 
     case "day_of_week":
+      if (children.length !== 1) throw "Expected a child for day_of_week";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for day_of_week";
+      }
       return (new Date(children[0])).getUTCDay();
 
     case "day_of_month":
+      if (children.length !== 1) throw "Expected a child for day_of_month";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for day_of_month";
+      }
       return (new Date(children[0])).getUTCDate();
 
     case "if_else":
@@ -237,79 +279,172 @@ export function evaluateCondition(parsedTree: validTypes) {
       return !children[0];
 
     case "in_range":
+      if (children.length !== 3) throw "Expected three children for in_range";
+      if (
+        typeof children[0] !== "number" || typeof children[1] !== "number" ||
+        typeof children[2] !== "number"
+      ) throw "Expected numeric children for in_range";
       return children[0] > children[1] && children[0] < children[2];
 
     case "coalesce":
       return children.reduce((prev, cur) => prev === null ? cur : prev, null);
 
     case "abs":
+      if (children.length !== 1) throw "Expected one child for abs";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for abs";
+      }
       return Math.abs(children[0]);
 
     case "asin":
+      if (children.length !== 1) throw "Expected one child for asin";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for asin";
+      }
       return Math.asin(children[0]);
 
     case "acos":
+      if (children.length !== 1) throw "Expected one child for acos";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for acos";
+      }
       return Math.acos(children[0]);
 
     case "atan":
+      if (children.length !== 1) throw "Expected one child for atan";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for atan";
+      }
       return Math.atan(children[0]);
 
     case "atan2":
+      if (children.length !== 2) throw "Expected two children for atan2";
+      if (typeof children[0] !== "number" || typeof children[1] !== "number") {
+        throw "Expected two numeric children for atan2";
+      }
       return Math.atan2(children[0], children[1]);
 
     case "average":
-      return children.reduce((prev, cur) => prev + cur, 0) / children.length;
+      for (const child of children) {
+        if (typeof child !== "number") {
+          throw "Expected a numeric child for average";
+        }
+      }
+      return (children as number[]).reduce((prev, cur) => prev + cur, 0) /
+        children.length;
 
     case "ceil":
+      if (children.length !== 1) throw "Expected one child for ceil";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for ceil";
+      }
       return Math.ceil(children[0]);
 
     case "floor":
+      if (children.length !== 1) throw "Expected one child for floor";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for floor";
+      }
       return Math.floor(children[0]);
 
     case "round":
+      if (children.length !== 1) throw "Expected one child for round";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for round";
+      }
       return Math.round(children[0]);
 
     case "sin":
+      if (children.length !== 1) throw "Expected one child for sin";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for sin";
+      }
       return Math.sin(children[0]);
 
     case "cos":
+      if (children.length !== 1) throw "Expected one child for cos";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for cos";
+      }
       return Math.cos(children[0]);
 
     case "tan":
+      if (children.length !== 1) throw "Expected one child for tan";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for tan";
+      }
       return Math.tan(children[0]);
 
     case "sec":
+      if (children.length !== 1) throw "Expected one child for sec";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for sec";
+      }
       return Math.cos(children[0]) === 0 ? null : (1 / Math.cos(children[0]));
 
     case "csc":
+      if (children.length !== 1) throw "Expected one child for csc";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for csc";
+      }
       return Math.sin(children[0]) === 0 ? null : (1 / Math.sin(children[0]));
 
     case "cot":
+      if (children.length !== 1) throw "Expected one child for cot";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for cot";
+      }
       return Math.tan(children[0]) === 0 ? null : (1 / Math.tan(children[0]));
 
     case "degrees":
+      if (children.length !== 1) throw "Expected one child for degrees";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for degrees";
+      }
       return children[0] * (180 / Math.PI);
 
     case "radians":
+      if (children.length !== 1) throw "Expected one child for radians";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for radians";
+      }
       return children[0] * (Math.PI / 180);
 
     case "exp":
+      if (children.length !== 1) throw "Expected one child for exp";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for exp";
+      }
       return Math.exp(children[0]);
 
     case "power":
+      if (children.length !== 2) throw "Expected two children for power";
+      if (typeof children[0] !== "number" || typeof children[1] !== "number") {
+        throw "Expected two numeric children for power";
+      }
       return Math.pow(children[0], children[1]);
 
     case "log":
+      if (children.length !== 2) throw "Expected two children for log";
+      if (typeof children[0] !== "number" || typeof children[1] !== "number") {
+        throw "Expected two numeric children for log";
+      }
       return Math.log(children[0]) / Math.log(children[1]);
 
     case "max":
-      return children.reduce(
+      for (const child of children) {
+        if (typeof child !== "number") throw "Expected a numeric child for max";
+      }
+      return (children as number[]).reduce(
         (prev, cur) => Math.max(prev, cur),
         Number.MIN_SAFE_INTEGER,
       );
 
     case "min":
-      return children.reduce(
+      for (const child of children) {
+        if (typeof child !== "number") throw "Expected a numeric child for min";
+      }
+      return (children as number[]).reduce(
         (prev, cur) => Math.min(prev, cur),
         Number.MAX_SAFE_INTEGER,
       );
@@ -321,9 +456,17 @@ export function evaluateCondition(parsedTree: validTypes) {
       return Math.random();
 
     case "sign":
+      if (children.length !== 1) throw "Expected one child for sign";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for sign";
+      }
       return children[0] > 0 ? 1 : (children[0] === 0 ? 0 : -1);
 
     case "sqrt":
+      if (children.length !== 1) throw "Expected one child for sqrt";
+      if (typeof children[0] !== "number") {
+        throw "Expected a numeric child for sqrt";
+      }
       return Math.sqrt(children[0]);
 
     default:

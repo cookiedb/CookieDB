@@ -1,11 +1,12 @@
 import { resolve } from "../../deps.ts";
 import { writeFile } from "../util/fileOperations.ts";
+import { Schema } from "../util/types.ts";
 
 export function create(
   directory: string,
   tenant: string,
   table: string,
-  schema: any | null,
+  schema: Schema | null,
 ) {
   // Make file if not exists
   const tablePath = resolve(directory, tenant, `${table}.ck`);

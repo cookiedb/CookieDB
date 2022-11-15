@@ -1,11 +1,12 @@
 import { resolve } from "../../deps.ts";
 import { readFile } from "./fileOperations.ts";
+import { Document, Schema } from "./types.ts";
 
 export function validateSchema(
   directory: string,
   tenant: string,
-  document: Record<string, any>,
-  schema: Record<string, any>,
+  document: Document,
+  schema: Schema,
 ) {
   const metaPath = resolve(directory, tenant, "__meta__.ck");
   const metaTable = readFile(metaPath);
@@ -36,7 +37,13 @@ export function validateSchema(
       } instead"`;
     }
     if (typeof value === "object" && value !== null) {
-      validateSchema(directory, tenant, document[key], schema[key]);
+      if (typeof schema[key] !== "object") {
+        throw `Expected ${schema[key]} for key "${key}" but got "${
+          JSON.stringify(value)
+        }`;
+      }
+
+      validateSchema(directory, tenant, value, schema[key] as Schema);
       continue;
     }
 
@@ -49,13 +56,22 @@ export function validateSchema(
       }" instead`;
     }
 
-    const spec: "string" | "boolean" | "number" | "foreign_key" = rawSpec
-      .replace("?", "");
+    if (typeof rawSpec !== "string") throw `Invalid specification: ${rawSpec}`;
+
+    const spec = rawSpec.replace("?", "") as
+      | "string"
+      | "boolean"
+      | "number"
+      | "foreign_key";
     const nullable: boolean = rawSpec.includes("?");
     if (nullable && value === null) continue;
 
     // deal with foreign_key
     if (spec === "foreign_key") {
+      if (typeof value !== "string") {
+        throw `Expected a foreign key for key "${key}", got "${value}"`;
+      }
+
       if (!Object.hasOwn(metaTable.foreign_key_index, value)) {
         throw `Expected a foreign key for key "${key}", got "${value}"`;
       }
@@ -63,6 +79,7 @@ export function validateSchema(
     }
 
     // deal with everything else
+    // deno-lint-ignore valid-typeof
     if (typeof value !== spec) {
       throw `Expected ${rawSpec} for key "${key}", got "${value}"`;
     }

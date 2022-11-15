@@ -1,10 +1,11 @@
 import { resolve } from "../../deps.ts";
 import { readFile } from "./fileOperations.ts";
+import { Document } from "./types.ts";
 
 export function recursivelyExpandDocument(
   directory: string,
   tenant: string,
-  document: any,
+  document: Document,
 ) {
   const metaPath = resolve(directory, tenant, "__meta__.ck");
   const metaTable: {
@@ -18,7 +19,7 @@ export function recursivelyExpandDocument(
         const tableName = metaTable.foreign_key_index[value];
         const tablePath = resolve(directory, tenant, `${tableName}.ck`);
         const table: {
-          documents: Record<string, any>;
+          documents: Record<string, Document>;
         } = readFile(tablePath);
 
         document[key] = recursivelyExpandDocument(
@@ -31,7 +32,7 @@ export function recursivelyExpandDocument(
       document[key] = recursivelyExpandDocument(
         directory,
         tenant,
-        document[key],
+        document[key] as Document,
       );
     }
   }
