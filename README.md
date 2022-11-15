@@ -6,6 +6,30 @@ CookieDB is designed to be as simple as humanly possible while also having a
 majority of the functionality you would expect of a db. It comes bundled with a
 http server.
 
+## Philosophy
+
+Practically no database with any popularity was built with the idea of developer
+experience in mind. DX is probably one of the most important choices for me
+personally when building a project and I was exhausted with all of the horrible
+options we had to choose from.
+
+- SQL databases are just okay, but interacting with them from a web platform is
+  a nightmare with all of the headache that is connections and pooling. I just
+  want to write a serverless app!
+- NoSQL databases are also just okay, but the lack of foreign key constraints
+  and joins makes them not viable long term. Denormalization is an awful
+  paradigm.
+
+What is CookieDB trying to do, and what is it not trying to do?
+
+- CookieDB is trying to be a lightweight, usuable database built with the
+  serverless web in mind (but usable on other platforms as well). It should have
+  awesome DX that makes people want to come back for more, or to refactor old
+  code to use it. It should "just work" for basically every imaginable usecase.
+  It should be multi-tenant to bring down the cost of cloud hosting.
+- CookieDB is not trying to be the fastest database. It is not trying to be
+  massively horizontally scalable. It is not trying to thwart the CAP theorum.
+
 ## Installation
 
 Right now, the api is not stable so we will not be providing a proper
@@ -102,7 +126,7 @@ const req = await fetch("/create/users", {
   },
 });
 
-const res = await res.text(); // "success"
+const res = await req.text(); // "success"
 
 // OR
 
