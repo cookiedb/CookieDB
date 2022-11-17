@@ -8,7 +8,7 @@ import {
 
 import defaultConfig from "./src/defaultConfig.json" assert { type: "json" };
 import { create } from "./src/operations/create.ts";
-import { insert } from "./src/operations/insert.ts";
+import { bulkInsert, insert } from "./src/operations/insert.ts";
 import { get } from "./src/operations/get.ts";
 import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
@@ -85,9 +85,13 @@ export function start(directory: string) {
         }
 
         case "insert": {
-          const key = insert(directory, tenant, table, body);
-
-          return new Response(key, { status: 200 });
+          if (Array.isArray(body)) {
+            const keys = bulkInsert(directory, tenant, table, body);
+            return new Response(JSON.stringify(keys), { status: 200 });
+          } else {
+            const key = insert(directory, tenant, table, body);
+            return new Response(key, { status: 200 });
+          }
         }
 
         case "select": {
