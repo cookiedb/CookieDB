@@ -32,3 +32,40 @@ export function insert(
 
   return key;
 }
+
+export function bulkInsert(
+  directory: string,
+  tenant: string,
+  table: string,
+  documents: Document[],
+) {
+  const metaPath = resolve(directory, tenant, "__meta__.ck");
+  const tablePath = resolve(directory, tenant, `${table}.ck`);
+
+  let curTable;
+  try {
+    curTable = readFile(tablePath);
+  } catch (_err) {
+    throw "Table does not exist";
+  }
+
+  const metaTable = readFile(metaPath);
+
+  const keys = [];
+
+  for (const document of documents) {
+    const key = crypto.randomUUID();
+
+    if (curTable.schema !== null) {
+      validateSchema(directory, tenant, document, curTable.schema);
+    }
+    curTable.documents[key] = document;
+    metaTable.foreign_key_index[key] = table;
+    keys.push(key);
+  }
+
+  writeFile(tablePath, curTable);
+  writeFile(metaPath, metaTable);
+
+  return keys;
+}

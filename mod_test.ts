@@ -124,6 +124,49 @@ Deno.test({
   sanitizeOps: false,
 });
 
+
+Deno.test({
+  name: "Able to bulk insert into a table",
+  async fn() {
+    const req = await fetch("http://localhost:8777/insert/table", {
+      method: "POST",
+      headers: {
+        "Authorization": authHeader,
+      },
+      body: JSON.stringify([
+        {
+          "name": "Yogi1",
+          "age": 13,
+          "cool": true,
+          "description": "The best avenger",
+        },
+        {
+          "name": "Yogi2",
+          "age": 14,
+          "cool": true,
+          "description": "The best avenger",
+        },
+        {
+          "name": "Yogi3",
+          "age": 15,
+          "cool": true,
+          "description": "The best avenger",
+        },
+        {
+          "name": "Yogi4",
+          "age": 16,
+          "cool": true,
+          "description": "The best avenger",
+        }
+      ]),
+    });
+
+    await req.text();
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
 Deno.test({
   name: "Schema properly validates incorrect input",
   async fn() {

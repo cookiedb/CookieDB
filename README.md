@@ -170,7 +170,7 @@ const res = await req.text(); // "success"
 
 #### POST: `/insert/:table:`
 
-Inserts a document into `:table:`, will error out if table does not exist.
+Inserts a document into `:table:`, will error out if table does not exist. If passed an array, it will bulk insert several documents.
 
 Ex:
 
@@ -190,6 +190,31 @@ const req = await fetch("/insert/users", {
       property: "builder",
     },
   }),
+});
+
+const res = await req.text(); // key of record, ex: "b94a8779-f737-466b-ac40-4dfb130f0eee"
+
+// OR
+
+const req = await fetch("/insert/dogs", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify([
+    {
+      name: "Yogi",
+      age: 9
+    },
+    {
+      name: "Charles",
+      age: 2
+    },
+    {
+      name: "KK",
+      age: 5
+    }
+  ]),
 });
 
 const res = await req.text(); // key of record, ex: "b94a8779-f737-466b-ac40-4dfb130f0eee"
