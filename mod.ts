@@ -85,7 +85,7 @@ export function start(directory: string) {
         }
 
         case "insert": {
-          if(Array.isArray(body)) {
+          if (Array.isArray(body)) {
             const keys = bulkInsert(directory, tenant, table, body);
             return new Response(JSON.stringify(keys), { status: 200 });
           } else {

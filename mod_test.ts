@@ -124,7 +124,6 @@ Deno.test({
   sanitizeOps: false,
 });
 
-
 Deno.test({
   name: "Able to bulk insert into a table",
   async fn() {
@@ -157,7 +156,7 @@ Deno.test({
           "age": 16,
           "cool": true,
           "description": "The best avenger",
-        }
+        },
       ]),
     });
 

@@ -170,7 +170,8 @@ const res = await req.text(); // "success"
 
 #### POST: `/insert/:table:`
 
-Inserts a document into `:table:`, will error out if table does not exist. If passed an array, it will bulk insert several documents.
+Inserts a document into `:table:`, will error out if table does not exist. If
+passed an array, it will bulk insert several documents.
 
 Ex:
 
@@ -204,16 +205,16 @@ const req = await fetch("/insert/dogs", {
   body: JSON.stringify([
     {
       name: "Yogi",
-      age: 9
+      age: 9,
     },
     {
       name: "Charles",
-      age: 2
+      age: 2,
     },
     {
       name: "KK",
-      age: 5
-    }
+      age: 5,
+    },
   ]),
 });
 
