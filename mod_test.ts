@@ -1,32 +1,34 @@
 import { assertEquals } from "./deps.ts";
 import { createUser, init, start } from "./mod.ts";
+import { readMeta } from "./src/util/fileOperations.ts";
 
-let authHeader = "";
+// delete folder to get fresh start
+try {
+  Deno.removeSync("./test", { recursive: true });
+} catch (_err) {
+  // no op, the directory didn't already exist
+}
 
-Deno.test("Set up database", () => {
-  // delete folder to get fresh start
-  try {
-    Deno.removeSync("./test", { recursive: true });
-  } catch (_err) {
-    // no op, the directory didn't already exist
-  }
+// initialize the database folder
+init("./test");
 
-  // initialize the database folder
-  init("./test");
-
-  // create two users
-  const { name, auth } = createUser("./test", {
-    name: "admin",
-  });
-  assertEquals(name, "admin");
-
-  const { name: name2 } = createUser("./test", {
-    name: "user",
-  });
-  assertEquals(name2, "user");
-
-  authHeader = `Bearer ${auth}`;
+// create two users
+const { name, auth } = createUser("./test", {
+  name: "admin",
 });
+assertEquals(name, "admin");
+
+const { name: name2 } = createUser("./test", {
+  name: "user",
+});
+assertEquals(name2, "user");
+
+const basicFetchOptions = {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${auth}`,
+  },
+};
 
 Deno.test({
   name: "Start up the database",
@@ -40,13 +42,7 @@ Deno.test({
 Deno.test({
   name: "Able to connect to database",
   async fn() {
-    const req = await fetch("http://localhost:8777/", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
-
+    const req = await fetch("http://localhost:8777/", basicFetchOptions);
     assertEquals(await req.text(), "success");
   },
   sanitizeResources: false,
@@ -56,12 +52,10 @@ Deno.test({
 Deno.test({
   name: "Able to create a table",
   async fn() {
-    const req = await fetch("http://localhost:8777/create/table", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    const req = await fetch(
+      "http://localhost:8777/create/table",
+      basicFetchOptions,
+    );
 
     assertEquals(await req.text(), "success");
   },
@@ -73,10 +67,7 @@ Deno.test({
   name: "Able to create a table with a schema",
   async fn() {
     const req = await fetch("http://localhost:8777/create/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "string",
         description: "string?",
@@ -106,10 +97,7 @@ Deno.test({
   name: "Able to insert into a table with no schema",
   async fn() {
     const req = await fetch("http://localhost:8777/insert/table", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         "name": "Yogi",
         "age": 12,
@@ -118,6 +106,7 @@ Deno.test({
       }),
     });
 
+    assertEquals(req.status, 200);
     yogiKey = await req.text();
   },
   sanitizeResources: false,
@@ -128,10 +117,7 @@ Deno.test({
   name: "Able to bulk insert into a table",
   async fn() {
     const req = await fetch("http://localhost:8777/insert/table", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify([
         {
           "name": "Yogi1",
@@ -160,6 +146,7 @@ Deno.test({
       ]),
     });
 
+    assertEquals(req.status, 200);
     await req.text();
   },
   sanitizeResources: false,
@@ -170,10 +157,7 @@ Deno.test({
   name: "Schema properly validates incorrect input",
   async fn() {
     let req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({}),
     });
 
@@ -183,10 +167,7 @@ Deno.test({
     );
 
     req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: null,
         description: null,
@@ -205,10 +186,7 @@ Deno.test({
     );
 
     req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "Bryan",
         description: null,
@@ -227,10 +205,7 @@ Deno.test({
     );
 
     req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "Bryan",
         description: "gigachad",
@@ -252,10 +227,7 @@ Deno.test({
     );
 
     req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: 10010,
         description: true,
@@ -289,10 +261,7 @@ Deno.test({
   name: "Able to insert into a table with a schema",
   async fn() {
     let req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "Bryan",
         description: "gigachad",
@@ -313,10 +282,7 @@ Deno.test({
     bryanKey = await req.text();
 
     req = await fetch("http://localhost:8777/insert/tableWithSchema", {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "Olek",
         description: null,
@@ -343,12 +309,10 @@ Deno.test({
 Deno.test({
   name: "Able to get values by key",
   async fn() {
-    let req = await fetch(`http://localhost:8777/get/table/${yogiKey}`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    let req = await fetch(
+      `http://localhost:8777/get/table/${yogiKey}`,
+      basicFetchOptions,
+    );
 
     assertEquals(await req.json(), {
       name: "Yogi",
@@ -357,12 +321,10 @@ Deno.test({
       description: "The best avenger",
     });
 
-    req = await fetch(`http://localhost:8777/get/tableWithSchema/${olekKey}`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    req = await fetch(
+      `http://localhost:8777/get/tableWithSchema/${olekKey}`,
+      basicFetchOptions,
+    );
 
     assertEquals(await req.json(), {
       name: "Olek",
@@ -376,10 +338,7 @@ Deno.test({
     });
 
     req = await fetch(`http://localhost:8777/get/tableWithSchema/${olekKey}`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         expand_keys: true,
       }),
@@ -416,10 +375,7 @@ Deno.test({
   name: "Able to update values by key",
   async fn() {
     let req = await fetch(`http://localhost:8777/update/table/${yogiKey}`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         name: "Yogi",
         age: 13,
@@ -433,10 +389,7 @@ Deno.test({
     req = await fetch(
       `http://localhost:8777/update/tableWithSchema/${olekKey}`,
       {
-        method: "POST",
-        headers: {
-          "Authorization": authHeader,
-        },
+        ...basicFetchOptions,
         body: JSON.stringify({
           name: "Yogi",
           age: 13,
@@ -454,10 +407,7 @@ Deno.test({
     req = await fetch(
       `http://localhost:8777/update/tableWithSchema/${olekKey}`,
       {
-        method: "POST",
-        headers: {
-          "Authorization": authHeader,
-        },
+        ...basicFetchOptions,
         body: JSON.stringify({
           name: "Olek",
           description: null,
@@ -484,10 +434,7 @@ Deno.test({
   name: "Able to select values by query",
   async fn() {
     let req = await fetch(`http://localhost:8777/select/table`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         query: {
           name: "eq($, 'Yogi')",
@@ -503,10 +450,7 @@ Deno.test({
     }]);
 
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         query: {
           age: "gt($, 10)",
@@ -546,10 +490,7 @@ Deno.test({
     assertEquals(await req.json(), everyone);
 
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         queries: [
           {
@@ -568,10 +509,7 @@ Deno.test({
     assertEquals(await req.json(), everyone);
 
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         queries: [
           {
@@ -630,10 +568,7 @@ Deno.test({
     }]);
 
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
+      ...basicFetchOptions,
       body: JSON.stringify({
         queries: [
           {
@@ -659,23 +594,16 @@ Deno.test({
 Deno.test({
   name: "Able to delete documents by key",
   async fn() {
-    let req = await fetch(`http://localhost:8777/delete/table/${yogiKey}`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    let req = await fetch(
+      `http://localhost:8777/delete/table/${yogiKey}`,
+      basicFetchOptions,
+    );
 
     assertEquals(await req.text(), "success");
 
     req = await fetch(
       `http://localhost:8777/delete/tableWithSchema/${olekKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": authHeader,
-        },
-      },
+      basicFetchOptions,
     );
 
     assertEquals(await req.text(), "success");
@@ -687,23 +615,32 @@ Deno.test({
 Deno.test({
   name: "Able to drop tables",
   async fn() {
-    let req = await fetch(`http://localhost:8777/drop/table`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    let req = await fetch(
+      `http://localhost:8777/drop/table`,
+      basicFetchOptions,
+    );
 
     assertEquals(await req.text(), "success");
 
-    req = await fetch(`http://localhost:8777/drop/tableWithSchema`, {
-      method: "POST",
-      headers: {
-        "Authorization": authHeader,
-      },
-    });
+    req = await fetch(
+      `http://localhost:8777/drop/tableWithSchema`,
+      basicFetchOptions,
+    );
 
     assertEquals(await req.text(), "success");
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
+  name: "Properly cleaned up meta",
+  fn() {
+    assertEquals(readMeta("./test", "admin"), {
+      key_index: {},
+      table_index: {},
+      chunk_index: {},
+    });
   },
   sanitizeResources: false,
   sanitizeOps: false,

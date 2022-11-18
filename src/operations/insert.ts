@@ -1,7 +1,14 @@
-import { resolve } from "../../deps.ts";
-import { readFile, writeFile } from "../util/fileOperations.ts";
+import {
+  readChunk,
+  readMeta,
+  writeChunk,
+  writeMeta,
+} from "../util/fileOperations.ts";
 import { Document } from "../util/types.ts";
 import { validateSchema } from "../util/validateSchema.ts";
+
+// TODO: Move to a setting
+const maxDocumentsPerChunk = 10000;
 
 export function insert(
   directory: string,
@@ -9,26 +16,47 @@ export function insert(
   table: string,
   document: Document,
 ) {
-  const metaPath = resolve(directory, tenant, "__meta__.ck");
-  const tablePath = resolve(directory, tenant, `${table}.ck`);
+  const meta = readMeta(directory, tenant);
+
+  if (!Object.hasOwn(meta.table_index, table)) {
+    throw `No table with name "${table}" to insert into`;
+  }
+  const schema = meta.table_index[table].schema;
+
+  if (schema) {
+    validateSchema(meta, document, schema);
+  }
+
   const key = crypto.randomUUID();
+  let chunkName: string | null = null;
 
-  let curTable;
-  try {
-    curTable = readFile(tablePath);
-  } catch (_err) {
-    throw "Table does not exist";
+  // Check if there are any valid chunks just chilling
+  for (
+    const [potentialChunkName, chunkMeta] of Object.entries(meta.chunk_index)
+  ) {
+    if (Object.keys(chunkMeta.keys).length < maxDocumentsPerChunk) {
+      chunkName = potentialChunkName;
+      break;
+    }
+  }
+  // If there are not make a new chunk and put document in that chunk
+  if (chunkName === null) {
+    chunkName = crypto.randomUUID();
+    meta.chunk_index[chunkName] = {
+      keys: {},
+    };
+    writeChunk(directory, tenant, chunkName, {});
   }
 
-  if (curTable.schema !== null) {
-    validateSchema(directory, tenant, document, curTable.schema);
-  }
-  curTable.documents[key] = document;
-  writeFile(tablePath, curTable);
+  meta.chunk_index[chunkName].keys[key] = table;
+  meta.key_index[key] = [table, chunkName];
+  meta.table_index[table].keys[key] = chunkName;
 
-  const metaTable = readFile(metaPath);
-  metaTable.foreign_key_index[key] = table;
-  writeFile(metaPath, metaTable);
+  writeMeta(directory, tenant, meta);
+
+  const chunk = readChunk(directory, tenant, chunkName);
+  chunk[key] = document;
+  writeChunk(directory, tenant, chunkName, chunk);
 
   return key;
 }
@@ -39,33 +67,53 @@ export function bulkInsert(
   table: string,
   documents: Document[],
 ) {
-  const metaPath = resolve(directory, tenant, "__meta__.ck");
-  const tablePath = resolve(directory, tenant, `${table}.ck`);
+  const meta = readMeta(directory, tenant);
 
-  let curTable;
-  try {
-    curTable = readFile(tablePath);
-  } catch (_err) {
-    throw "Table does not exist";
+  if (!Object.hasOwn(meta.table_index, table)) {
+    throw `No table with name "${table}" to insert into`;
   }
-
-  const metaTable = readFile(metaPath);
-
+  const schema = meta.table_index[table].schema;
   const keys = [];
 
+  // TODO: Optimize this a lot
   for (const document of documents) {
-    const key = crypto.randomUUID();
-
-    if (curTable.schema !== null) {
-      validateSchema(directory, tenant, document, curTable.schema);
+    if (schema) {
+      validateSchema(meta, document, schema);
     }
-    curTable.documents[key] = document;
-    metaTable.foreign_key_index[key] = table;
+
+    const key = crypto.randomUUID();
+    let chunkName: string | null = null;
+
+    // Check if there are any valid chunks just chilling
+    for (
+      const [potentialChunkName, chunkMeta] of Object.entries(meta.chunk_index)
+    ) {
+      if (Object.keys(chunkMeta.keys).length < maxDocumentsPerChunk) {
+        chunkName = potentialChunkName;
+        break;
+      }
+    }
+    // If there are not make a new chunk and put document in that chunk
+    if (chunkName === null) {
+      chunkName = crypto.randomUUID();
+      meta.chunk_index[chunkName] = {
+        keys: {},
+      };
+      writeChunk(directory, tenant, chunkName, {});
+    }
+
+    meta.chunk_index[chunkName].keys[key] = table;
+    meta.key_index[key] = [table, chunkName];
+    meta.table_index[table].keys[key] = chunkName;
+
+    writeMeta(directory, tenant, meta);
+
+    const chunk = readChunk(directory, tenant, chunkName);
+    chunk[key] = document;
+    writeChunk(directory, tenant, chunkName, chunk);
+
     keys.push(key);
   }
-
-  writeFile(tablePath, curTable);
-  writeFile(metaPath, metaTable);
 
   return keys;
 }

@@ -1,5 +1,4 @@
-import { resolve } from "../../deps.ts";
-import { writeFile } from "../util/fileOperations.ts";
+import { readMeta, writeMeta } from "../util/fileOperations.ts";
 import { Schema } from "../util/types.ts";
 
 export function create(
@@ -8,14 +7,14 @@ export function create(
   table: string,
   schema: Schema | null,
 ) {
-  // Make file if not exists
-  const tablePath = resolve(directory, tenant, `${table}.ck`);
-  try {
-    Deno.lstatSync(tablePath);
-  } catch (_err) {
-    writeFile(tablePath, {
+  const meta = readMeta(directory, tenant);
+
+  // If the table does not already exist, create it
+  if (!Object.hasOwn(meta.table_index, table)) {
+    meta.table_index[table] = {
       schema,
-      documents: {},
-    });
+      keys: {},
+    };
+    writeMeta(directory, tenant, meta);
   }
 }

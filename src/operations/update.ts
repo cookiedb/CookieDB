@@ -1,5 +1,4 @@
-import { resolve } from "../../deps.ts";
-import { readFile, writeFile } from "../util/fileOperations.ts";
+import { readChunk, readMeta, writeChunk } from "../util/fileOperations.ts";
 import { Document } from "../util/types.ts";
 import { validateSchema } from "../util/validateSchema.ts";
 
@@ -10,21 +9,26 @@ export function update(
   key: string,
   document: Document,
 ) {
-  const tablePath = resolve(directory, tenant, `${table}.ck`);
+  const meta = readMeta(directory, tenant);
 
-  let curTable;
-  try {
-    curTable = readFile(tablePath);
-  } catch (_err) {
-    throw "Table does not exist";
+  if (!Object.hasOwn(meta.key_index, key)) {
+    throw `No such key "${key}"`;
   }
-  if (!Object.hasOwn(curTable.documents, key)) {
-    throw "Can't update document if document does not exist";
+  const [tableName, chunkName] = meta.key_index[key];
+
+  if (tableName !== table) {
+    throw `No such key "${key}" in table "${table}"`;
   }
-  if (curTable.schema !== null) {
-    validateSchema(directory, tenant, document, curTable.schema);
+
+  const schema = meta.table_index[table].schema;
+
+  if (schema) {
+    validateSchema(meta, document, schema);
   }
-  curTable.documents[key] = document;
-  writeFile(tablePath, curTable);
+
+  const chunk = readChunk(directory, tenant, chunkName);
+  chunk[key] = document;
+  writeChunk(directory, tenant, chunkName, chunk);
+
   return key;
 }

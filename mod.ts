@@ -158,13 +158,13 @@ export function start(directory: string) {
   };
 
   if (config.cert_file && config.key_file) {
-    serveTls(serveRequest, {
+    return serveTls(serveRequest, {
       port: config.port,
       certFile: config.cert_file,
       keyFile: config.key_file,
     });
   } else {
-    serve(serveRequest, {
+    return serve(serveRequest, {
       port: config.port,
     });
   }
