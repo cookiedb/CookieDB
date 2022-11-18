@@ -1,5 +1,4 @@
-import { resolve } from "../../deps.ts";
-import { readFile } from "./fileOperations.ts";
+import { readChunk, readMeta } from "./fileOperations.ts";
 import { Document } from "./types.ts";
 
 export function recursivelyExpandDocument(
@@ -7,25 +6,19 @@ export function recursivelyExpandDocument(
   tenant: string,
   document: Document,
 ) {
-  const metaPath = resolve(directory, tenant, "__meta__.ck");
-  const metaTable: {
-    foreign_key_index: Record<string, string>;
-  } = readFile(metaPath);
+  const metaTable = readMeta(directory, tenant);
 
   for (const [key, value] of Object.entries(document)) {
     if (typeof value === "string") {
       // assign document[key] to expanded document and call method
-      if (Object.hasOwn(metaTable.foreign_key_index, value)) {
-        const tableName = metaTable.foreign_key_index[value];
-        const tablePath = resolve(directory, tenant, `${tableName}.ck`);
-        const table: {
-          documents: Record<string, Document>;
-        } = readFile(tablePath);
+      if (Object.hasOwn(metaTable.key_index, value)) {
+        const [_, chunkName] = metaTable.key_index[value];
+        const chunk = readChunk(directory, tenant, chunkName);
 
         document[key] = recursivelyExpandDocument(
           directory,
           tenant,
-          table.documents[value],
+          chunk[value],
         );
       }
     } else if (typeof value === "object" && value !== null) {

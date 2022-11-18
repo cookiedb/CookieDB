@@ -1,16 +1,10 @@
-import { resolve } from "../../deps.ts";
-import { readFile } from "./fileOperations.ts";
-import { Document, Schema } from "./types.ts";
+import { Document, Meta, Schema } from "./types.ts";
 
 export function validateSchema(
-  directory: string,
-  tenant: string,
+  meta: Meta,
   document: Document,
   schema: Schema,
 ) {
-  const metaPath = resolve(directory, tenant, "__meta__.ck");
-  const metaTable = readFile(metaPath);
-
   if (
     Object.keys(document).sort().join(",") !==
       Object.keys(schema).sort().join(",")
@@ -43,7 +37,7 @@ export function validateSchema(
         }`;
       }
 
-      validateSchema(directory, tenant, value, schema[key] as Schema);
+      validateSchema(meta, value, schema[key] as Schema);
       continue;
     }
 
@@ -72,7 +66,7 @@ export function validateSchema(
         throw `Expected a foreign key for key "${key}", got "${value}"`;
       }
 
-      if (!Object.hasOwn(metaTable.foreign_key_index, value)) {
+      if (!Object.hasOwn(meta.key_index, value)) {
         throw `Expected a foreign key for key "${key}", got "${value}"`;
       }
       continue;
