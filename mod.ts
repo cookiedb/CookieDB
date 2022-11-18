@@ -22,6 +22,9 @@ interface Config {
   users: Record<string, string>;
   cert_file?: string;
   key_file?: string;
+  advanced: {
+    max_documents_per_chunk: number;
+  };
 }
 
 export function init(directory: string) {
@@ -86,10 +89,14 @@ export function start(directory: string) {
 
         case "insert": {
           if (Array.isArray(body)) {
-            const keys = bulkInsert(directory, tenant, table, body);
+            const keys = bulkInsert(directory, tenant, table, body, {
+              maxDocumentsPerChunk: config.advanced.max_documents_per_chunk,
+            });
             return new Response(JSON.stringify(keys), { status: 200 });
           } else {
-            const key = insert(directory, tenant, table, body);
+            const key = insert(directory, tenant, table, body, {
+              maxDocumentsPerChunk: config.advanced.max_documents_per_chunk,
+            });
             return new Response(key, { status: 200 });
           }
         }

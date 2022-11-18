@@ -7,14 +7,16 @@ import {
 import { Document } from "../util/types.ts";
 import { validateSchema } from "../util/validateSchema.ts";
 
-// TODO: Move to a setting
-const maxDocumentsPerChunk = 10000;
+interface InsertOpts {
+  maxDocumentsPerChunk: number;
+}
 
 export function insert(
   directory: string,
   tenant: string,
   table: string,
   document: Document,
+  opts: InsertOpts,
 ) {
   const meta = readMeta(directory, tenant);
 
@@ -34,7 +36,7 @@ export function insert(
   for (
     const [potentialChunkName, chunkMeta] of Object.entries(meta.chunk_index)
   ) {
-    if (Object.keys(chunkMeta.keys).length < maxDocumentsPerChunk) {
+    if (Object.keys(chunkMeta.keys).length < opts.maxDocumentsPerChunk) {
       chunkName = potentialChunkName;
       break;
     }
@@ -66,6 +68,7 @@ export function bulkInsert(
   tenant: string,
   table: string,
   documents: Document[],
+  opts: InsertOpts,
 ) {
   const meta = readMeta(directory, tenant);
 
@@ -88,7 +91,7 @@ export function bulkInsert(
     for (
       const [potentialChunkName, chunkMeta] of Object.entries(meta.chunk_index)
     ) {
-      if (Object.keys(chunkMeta.keys).length < maxDocumentsPerChunk) {
+      if (Object.keys(chunkMeta.keys).length < opts.maxDocumentsPerChunk) {
         chunkName = potentialChunkName;
         break;
       }
