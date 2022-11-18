@@ -1,7 +1,7 @@
-import { readChunk, readMeta } from "../util/fileOperations.ts";
+import { buildChunkTree, readChunk, readMeta } from "../util/fileOperations.ts";
 import { evaluateCondition, parseCondition } from "../util/condition.ts";
 import { recursivelyExpandDocument } from "../util/expandDocument.ts";
-import { Document, Meta, PossibleTypes } from "../util/types.ts";
+import { Document, PossibleTypes } from "../util/types.ts";
 
 interface Match {
   [key: string]: string | Match;
@@ -24,20 +24,6 @@ function documentMatches(document: Document, match: Match) {
   }
 
   return true;
-}
-
-function buildChunkTree(meta: Meta, table: string) {
-  const chunkTree: Record<string, string[]> = {};
-
-  for (const [key, chunk] of Object.entries(meta.table_index[table].keys)) {
-    if (Object.hasOwn(chunkTree, chunk)) {
-      chunkTree[chunk].push(key);
-    } else {
-      chunkTree[chunk] = [key];
-    }
-  }
-
-  return chunkTree;
 }
 
 interface QueryOptions {

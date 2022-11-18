@@ -1,5 +1,8 @@
 {
   "port": "8777",
   "log": false,
-  "users": {}
+  "users": {},
+  "advanced": {
+    "max_documents_per_chunk": 10000
+  }
 }

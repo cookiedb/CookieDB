@@ -1,4 +1,5 @@
 import {
+  buildChunkTree,
   deleteChunk,
   readChunk,
   readMeta,
@@ -11,17 +12,19 @@ export function drop(directory: string, tenant: string, table: string) {
   if (!Object.hasOwn(meta.table_index, table)) {
     throw `No table with name "${table}" to drop`;
   }
-  const tableMeta = meta.table_index[table];
 
-  // TODO: Optimize dropping chunks
+  const chunkTree = buildChunkTree(meta, table);
 
-  // Delete keys from key_index and chunk_index
-  for (const [key, chunkName] of Object.entries(tableMeta.keys)) {
-    delete meta.key_index[key];
-    delete meta.chunk_index[chunkName].keys[key];
-
+  for (const [chunkName, keys] of Object.entries(chunkTree)) {
     const chunk = readChunk(directory, tenant, chunkName);
-    delete chunk[key];
+
+    // Delete keys from key_index and chunk_index
+    for (const key of keys) {
+      delete meta.key_index[key];
+      delete meta.chunk_index[chunkName].keys[key];
+
+      delete chunk[key];
+    }
 
     // Delete chunk if empty
     if (Object.keys(meta.chunk_index[chunkName].keys).length === 0) {
