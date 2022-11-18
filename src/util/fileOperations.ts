@@ -66,7 +66,6 @@ export function ensureTenant(directory: string, tenant: string) {
   }
 }
 
-
 export function buildChunkTree(meta: Meta, table: string) {
   const chunkTree: Record<string, string[]> = {};
 
