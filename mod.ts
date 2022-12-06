@@ -160,6 +160,7 @@ export function start(directory: string) {
       }
       return new Response("success", { status: 200 });
     } catch (err) {
+      if (config.log) console.error(err);
       return new Response(err, { status: 400 });
     }
   };

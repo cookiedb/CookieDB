@@ -1,4 +1,4 @@
-import { ensureDirSync, pack, resolve, unpack } from "../../deps.ts";
+import { ensureDirSync, resolve } from "../../deps.ts";
 import { Chunk, Meta } from "./types.ts";
 
 export function readChunk(
@@ -8,8 +8,8 @@ export function readChunk(
 ): Chunk {
   const chunkPath = resolve(directory, "users", tenant, `${chunkName}.ck`);
   try {
-    const fileBuffer = Deno.readFileSync(chunkPath);
-    return unpack(fileBuffer);
+    const fileBuffer = Deno.readTextFileSync(chunkPath);
+    return JSON.parse(fileBuffer);
   } catch (_err) {
     throw "Chunk does not exist";
   }
@@ -22,7 +22,7 @@ export function writeChunk(
   chunk: Chunk,
 ) {
   const chunkPath = resolve(directory, "users", tenant, `${chunkName}.ck`);
-  Deno.writeFileSync(chunkPath, pack(chunk));
+  Deno.writeTextFileSync(chunkPath, JSON.stringify(chunk));
 }
 
 export function deleteChunk(
@@ -37,8 +37,8 @@ export function deleteChunk(
 export function readMeta(directory: string, tenant: string): Meta {
   const metaPath = resolve(directory, "users", tenant, "__meta__.ck");
   try {
-    const fileBuffer = Deno.readFileSync(metaPath);
-    return unpack(fileBuffer);
+    const fileBuffer = Deno.readTextFileSync(metaPath);
+    return JSON.parse(fileBuffer);
   } catch (_err) {
     throw "Meta does not exist";
   }
@@ -46,7 +46,7 @@ export function readMeta(directory: string, tenant: string): Meta {
 
 export function writeMeta(directory: string, tenant: string, meta: Meta) {
   const metaPath = resolve(directory, "users", tenant, "__meta__.ck");
-  Deno.writeFileSync(metaPath, pack(meta));
+  Deno.writeTextFileSync(metaPath, JSON.stringify(meta));
 }
 
 export function ensureTenant(directory: string, tenant: string) {
