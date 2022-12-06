@@ -1,5 +1,4 @@
 export { cryptoRandomString } from "https://deno.land/x/crypto_random_string@1.1.0/mod.ts";
-export { pack, unpack } from "https://deno.land/x/msgpackr@v1.8.0/index.js";
 export { parse } from "https://deno.land/std@0.167.0/flags/mod.ts";
 export { resolve } from "https://deno.land/std@0.167.0/path/mod.ts";
 export { serve, serveTls } from "https://deno.land/std@0.167.0/http/server.ts";
