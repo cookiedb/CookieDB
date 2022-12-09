@@ -306,8 +306,8 @@ In the simple case, there is simply just a `where` object. Let's see a sample:
 ```
 
 For more complex queries, this is not enough. We can instead create a nested
-query with more complicated statements using
-[CookieDB's extensive expressions](###Expressions). An example is:
+query with more complicated statements using CookieDB's extensive expressions
+(see below). An example is:
 
 ```json
 {
