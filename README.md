@@ -173,6 +173,9 @@ const res = await req.text(); // "success"
 Inserts a document into `:table:`, will error out if table does not exist. If
 passed an array, it will bulk insert several documents.
 
+Note: Documents may not have a top-level key by the name of `key`. They also may
+not have any keys with a `.` in them.
+
 Ex:
 
 ```javascript
@@ -340,7 +343,7 @@ const req = await fetch("/select/users", {
     "Authorization": `Bearer ${token}`,
   },
   body: JSON.stringify({
-    where: "and(eq($name, 'Bryan'), gt($age, 10))"
+    where: "and(eq($name, 'Bryan'), gt($age, 10))",
     max_results: 1,
     show_keys: true,
     expand_keys: true,
