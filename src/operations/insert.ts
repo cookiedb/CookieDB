@@ -14,28 +14,22 @@ interface InsertOpts {
 function getValidChunk(
   directory: string,
   tenant: string,
+  table: string,
   meta: Meta,
   maxDocumentsPerChunk: number,
 ) {
-  let chunkName = null;
   // Check if there are any valid chunks just chilling
-  for (
-    const [potentialChunkName, chunkMeta] of Object.entries(meta.chunk_index)
-  ) {
-    if (Object.keys(chunkMeta.keys).length < maxDocumentsPerChunk) {
-      chunkName = potentialChunkName;
-      break;
+  for (const chunkName of meta.table_index[table].chunks) {
+    const chunk = readChunk(directory, tenant, chunkName);
+    if (Object.keys(chunk).length < maxDocumentsPerChunk) {
+      return chunkName;
     }
   }
-  // If there are not make a new chunk and put document in that chunk
-  if (chunkName === null) {
-    chunkName = crypto.randomUUID();
-    meta.chunk_index[chunkName] = {
-      keys: {},
-    };
-    writeChunk(directory, tenant, chunkName, {});
-  }
 
+  // If there is not, make a new chunk
+  const chunkName = crypto.randomUUID();
+  meta.table_index[table].chunks.push(chunkName);
+  writeChunk(directory, tenant, chunkName, {});
   return chunkName;
 }
 
@@ -61,13 +55,12 @@ export function insert(
   const chunkName = getValidChunk(
     directory,
     tenant,
+    table,
     meta,
     opts.maxDocumentsPerChunk,
   );
 
-  meta.chunk_index[chunkName].keys[key] = table;
   meta.key_index[key] = [table, chunkName];
-  meta.table_index[table].keys[key] = chunkName;
 
   writeMeta(directory, tenant, meta);
 
@@ -96,6 +89,7 @@ export function bulkInsert(
   let chunkName = getValidChunk(
     directory,
     tenant,
+    table,
     meta,
     opts.maxDocumentsPerChunk,
   );
@@ -108,20 +102,16 @@ export function bulkInsert(
 
     const key = crypto.randomUUID();
 
-    meta.chunk_index[chunkName].keys[key] = table;
     meta.key_index[key] = [table, chunkName];
-    meta.table_index[table].keys[key] = chunkName;
-
     chunk[key] = document;
 
-    if (
-      Object.keys(meta.chunk_index[chunkName].keys).length ===
-        opts.maxDocumentsPerChunk
-    ) {
+    // if chunk is full, get a new valid chunk to start writing into
+    if (Object.keys(chunk).length >= opts.maxDocumentsPerChunk) {
       writeChunk(directory, tenant, chunkName, chunk);
       chunkName = getValidChunk(
         directory,
         tenant,
+        table,
         meta,
         opts.maxDocumentsPerChunk,
       );

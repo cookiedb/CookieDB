@@ -61,21 +61,6 @@ export function ensureTenant(directory: string, tenant: string) {
     writeMeta(directory, tenant, {
       key_index: {},
       table_index: {},
-      chunk_index: {},
     });
   }
-}
-
-export function buildChunkTree(meta: Meta, table: string) {
-  const chunkTree: Record<string, string[]> = {};
-
-  for (const [key, chunk] of Object.entries(meta.table_index[table].keys)) {
-    if (Object.hasOwn(chunkTree, chunk)) {
-      chunkTree[chunk].push(key);
-    } else {
-      chunkTree[chunk] = [key];
-    }
-  }
-
-  return chunkTree;
 }
