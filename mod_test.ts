@@ -572,7 +572,7 @@ Deno.test({
 Deno.test({
   name: "Able to select values with aliases",
   async fn() {
-    let req = await fetch(`http://localhost:8777/select/table`, {
+    const req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "eq($name, 'Yogi')",
