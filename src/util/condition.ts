@@ -1,16 +1,16 @@
-import { PossibleTypes } from "./types.ts";
+import { Document, PossibleTypes } from "./types.ts";
 
-type validTypes = ParseTree | PossibleTypes;
+type ValidTypes = ParseTree | PossibleTypes;
 
 interface ParseTree {
   condition: string;
-  children: validTypes[];
+  children: ValidTypes[];
 }
 
 export function parseCondition(
   condition: string,
-  val: PossibleTypes | PossibleTypes[],
-): validTypes {
+  val: Document,
+): ValidTypes {
   condition = condition.trim();
   const functionAndInputsRegex = /^(.+?)\((.*)\)$/;
 
@@ -40,11 +40,17 @@ export function parseCondition(
     }
 
     if (condition.startsWith("$")) {
-      if (typeof val === "object" && val !== null) {
-        return val[parseInt(condition.replace("$", "") || "0")];
+      const properties = condition.slice(1).split(".");
+      let value: Document | PossibleTypes = val;
+      for (const property of properties) {
+        if (
+          typeof value !== "object" || value === null ||
+          !Object.hasOwn(value, property)
+        ) throw `Invalid property key ${condition}`;
+        value = value[property];
       }
 
-      return val;
+      return value as PossibleTypes;
     }
 
     throw (`failed to parse condition (${condition})`);
@@ -98,7 +104,7 @@ export function parseCondition(
   }
   rawChildren.push(curString);
 
-  const children: validTypes[] = rawChildren.map((child) =>
+  const children: ValidTypes[] = rawChildren.map((child) =>
     parseCondition(child, val)
   );
 
@@ -108,7 +114,7 @@ export function parseCondition(
   };
 }
 
-export function evaluateCondition(parsedTree: validTypes) {
+export function evaluateCondition(parsedTree: ValidTypes) {
   if (
     typeof parsedTree === "string" || typeof parsedTree === "number" ||
     typeof parsedTree === "boolean" || parsedTree === null

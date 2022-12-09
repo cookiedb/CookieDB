@@ -13,7 +13,7 @@ import { get } from "./src/operations/get.ts";
 import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
 import { del } from "./src/operations/delete.ts";
-import { selectQueries, selectQuery } from "./src/operations/select.ts";
+import { selectQuery } from "./src/operations/select.ts";
 import { ensureTenant } from "./src/util/fileOperations.ts";
 
 interface Config {
@@ -106,34 +106,16 @@ export function start(directory: string) {
           const maxResults = body.max_results ?? 100;
           const showKeys = body.show_keys ?? false;
           const expandKeys = body.expand_keys ?? false;
-          if (body.query) {
-            const results = selectQuery(
-              directory,
-              tenant,
-              table,
-              body.query,
-              {
-                maxResults,
-                showKeys,
-                expandKeys,
-              },
-            );
-            return new Response(JSON.stringify(results), { status: 200 });
-          }
-          if (!body.queries || !body.statement) {
-            throw "No query or no queries and statement were provided";
-          }
 
-          const results = selectQueries(
+          const results = selectQuery(
             directory,
             tenant,
             table,
-            body.queries,
-            body.statement,
             {
               maxResults,
               showKeys,
               expandKeys,
+              where: body?.where ?? "",
             },
           );
           return new Response(JSON.stringify(results), { status: 200 });
