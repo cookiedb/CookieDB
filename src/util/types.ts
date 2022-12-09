@@ -13,6 +13,10 @@ export interface Document {
   [key: string]: PossibleTypes | Document;
 }
 
+export interface Alias {
+  [key: string]: string | Alias;
+}
+
 export type PossibleTypes = string | boolean | number | null;
 
 export interface Meta {

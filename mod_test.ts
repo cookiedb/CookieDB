@@ -435,6 +435,18 @@ Deno.test({
   async fn() {
     let req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
+    });
+
+    assertEquals(await req.json(), [
+      { name: "Yogi", age: 13, cool: true, description: "The best avenger" },
+      { name: "Yogi1", age: 13, cool: true, description: "The best avenger" },
+      { name: "Yogi2", age: 14, cool: true, description: "The best avenger" },
+      { name: "Yogi3", age: 15, cool: true, description: "The best avenger" },
+      { name: "Yogi4", age: 16, cool: true, description: "The best avenger" },
+    ]);
+
+    req = await fetch(`http://localhost:8777/select/table`, {
+      ...basicFetchOptions,
       body: JSON.stringify({
         where: "eq($name, 'Yogi')",
       }),
@@ -552,6 +564,31 @@ Deno.test({
     });
 
     assertEquals(await req.json(), [everyone[0]]);
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
+  name: "Able to select values with aliases",
+  async fn() {
+    let req = await fetch(`http://localhost:8777/select/table`, {
+      ...basicFetchOptions,
+      body: JSON.stringify({
+        where: "eq($name, 'Yogi')",
+        alias: {
+          name: "$name",
+          ageDoubled: "multiply($age, 2)",
+          notCool: "not($cool)",
+        },
+      }),
+    });
+
+    assertEquals(await req.json(), [{
+      "name": "Yogi",
+      "ageDoubled": 26,
+      "notCool": false,
+    }]);
   },
   sanitizeResources: false,
   sanitizeOps: false,

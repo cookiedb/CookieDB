@@ -1,20 +1,20 @@
 import { readChunk, readMeta } from "../util/fileOperations.ts";
 import { evaluateCondition, parseCondition } from "../util/condition.ts";
-import { recursivelyExpandDocument } from "../util/expandDocument.ts";
-import { Document } from "../util/types.ts";
-
-interface Match {
-  [key: string]: string | Match;
-}
+import {
+  recursivelyExpandAlias,
+  recursivelyExpandDocument,
+} from "../util/expandDocument.ts";
+import { Alias, Document } from "../util/types.ts";
 
 interface QueryOptions {
   maxResults: number;
   showKeys: boolean;
   expandKeys: boolean;
   where: string;
+  alias?: Alias;
 }
 
-export function selectQuery(
+export function select(
   directory: string,
   tenant: string,
   table: string,
@@ -40,20 +40,18 @@ export function selectQuery(
         opts.where === "" ||
         evaluateCondition(parseCondition(opts.where, document))
       ) {
-        const doc = opts.expandKeys
-          ? recursivelyExpandDocument(directory, tenant, document)
-          : document;
+        let doc = document;
 
-        if (opts.showKeys) {
-          results.push({
-            ...doc,
-            ...{
-              key,
-            },
-          });
-        } else {
-          results.push(doc);
+        if (opts.alias && opts.expandKeys) {
+          doc = recursivelyExpandDocument(directory, tenant, doc); // expand keys of document before alias
         }
+        if (opts.alias) doc = recursivelyExpandAlias(opts.alias, doc);
+        if (opts.expandKeys) {
+          doc = recursivelyExpandDocument(directory, tenant, doc); // expand keys of alias
+        }
+        if (opts.showKeys) doc = { ...doc, key };
+
+        results.push(doc);
       }
     }
   }
