@@ -23,20 +23,21 @@ export function del(
     throw `No such key "${key}" in table "${table}"`;
   }
 
-  // Delete key from indexes
+  // Delete key from key_index
   delete meta.key_index[key];
-  delete meta.chunk_index[chunkName].keys[key];
-  delete meta.table_index[table].keys[key];
 
   // Delete document from chunk
   const chunk = readChunk(directory, tenant, chunkName);
   delete chunk[key];
-  writeChunk(directory, tenant, chunkName, chunk);
 
-  // Delete chunk if empty
-  if (Object.keys(meta.chunk_index[chunkName].keys).length === 0) {
-    delete meta.chunk_index[chunkName];
+  // Delete chunk if empty, otherwise just update it
+  if (Object.keys(chunk).length === 0) {
     deleteChunk(directory, tenant, chunkName);
+
+    const index = meta.table_index[table].chunks.indexOf(chunkName);
+    meta.table_index[table].chunks.splice(index, 1);
+  } else {
+    writeChunk(directory, tenant, chunkName, chunk);
   }
 
   writeMeta(directory, tenant, meta);

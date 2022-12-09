@@ -19,10 +19,7 @@ export interface Meta {
   key_index: Record<string, string[]>;
   table_index: Record<string, {
     schema: Schema | null;
-    keys: Record<string, string>;
-  }>;
-  chunk_index: Record<string, {
-    keys: Record<string, string>;
+    chunks: string[];
   }>;
 }
 

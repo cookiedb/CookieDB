@@ -13,7 +13,7 @@ export function create(
   if (!Object.hasOwn(meta.table_index, table)) {
     meta.table_index[table] = {
       schema,
-      keys: {},
+      chunks: [],
     };
     writeMeta(directory, tenant, meta);
   }

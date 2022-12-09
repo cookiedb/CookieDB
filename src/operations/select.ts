@@ -1,4 +1,4 @@
-import { buildChunkTree, readChunk, readMeta } from "../util/fileOperations.ts";
+import { readChunk, readMeta } from "../util/fileOperations.ts";
 import { evaluateCondition, parseCondition } from "../util/condition.ts";
 import { recursivelyExpandDocument } from "../util/expandDocument.ts";
 import { Document, PossibleTypes } from "../util/types.ts";
@@ -42,16 +42,14 @@ export function selectQuery(
   const meta = readMeta(directory, tenant);
 
   if (!Object.hasOwn(meta.table_index, table)) {
-    throw `No table with name "${table}" to insert into`;
+    throw `No table with name "${table}" to select from`;
   }
-
-  const chunkTree = buildChunkTree(meta, table);
 
   const results: Document[] = [];
 
-  for (const [chunkName, keys] of Object.entries(chunkTree)) {
+  for (const chunkName of meta.table_index[table].chunks) {
     const chunk = readChunk(directory, tenant, chunkName);
-    for (const key of keys) {
+    for (const key of Object.keys(chunk)) {
       const document = chunk[key];
       if (opts.maxResults === results.length) {
         break;
@@ -90,16 +88,14 @@ export function selectQueries(
   const meta = readMeta(directory, tenant);
 
   if (!Object.hasOwn(meta.table_index, table)) {
-    throw `No table with name "${table}" to insert into`;
+    throw `No table with name "${table}" to select from`;
   }
-
-  const chunkTree = buildChunkTree(meta, table);
 
   const results: Document[] = [];
 
-  for (const [chunkName, keys] of Object.entries(chunkTree)) {
+  for (const chunkName of meta.table_index[table].chunks) {
     const chunk = readChunk(directory, tenant, chunkName);
-    for (const key of keys) {
+    for (const key of Object.keys(chunk)) {
       const document = chunk[key];
       if (opts.maxResults === results.length) {
         break;

@@ -46,10 +46,6 @@
     "https://deno.land/x/crypto_random_string@1.1.0/constants.ts": "834f718bc3e7bba4d19a28cbc9d289309c6c3db5d6486c300d509fffa42a75d6",
     "https://deno.land/x/crypto_random_string@1.1.0/cryptoRandomString.ts": "301046e469dd9228171262b8c1ae31aa44ae1a7595ba0e2dbbc464819ad9aa43",
     "https://deno.land/x/crypto_random_string@1.1.0/deps.ts": "742c4c04df39a5fcc8939d3a2c9052229c2e2d61c2d7af5317fcbee5dd93c2ff",
-    "https://deno.land/x/crypto_random_string@1.1.0/mod.ts": "f5513407c5efa5d4d25a61965ad5a3cd62d0f7d57246fe8db4b8d2ef2a630380",
-    "https://deno.land/x/msgpackr@v1.8.0/index.js": "876a1a157bf214a09c3553a9bf2bfcd59ea5ba6cfaca86923d459c053c991643",
-    "https://deno.land/x/msgpackr@v1.8.0/iterators.js": "ccff09b665e3aef7fd707883eec63241aa100ec7c1956d6f9fc4c902779525fd",
-    "https://deno.land/x/msgpackr@v1.8.0/pack.js": "29c4fb8cde3e6250285dba5b3a1155b761ecb2c9b79ed800ccc1c7856a792f9b",
-    "https://deno.land/x/msgpackr@v1.8.0/unpack.js": "1837a09217d36ad5a65dd0cad0e1d459aaca39d198b678c71b5857ccaa0fe11f"
+    "https://deno.land/x/crypto_random_string@1.1.0/mod.ts": "f5513407c5efa5d4d25a61965ad5a3cd62d0f7d57246fe8db4b8d2ef2a630380"
   }
 }

@@ -639,7 +639,6 @@ Deno.test({
     assertEquals(readMeta("./test", "admin"), {
       key_index: {},
       table_index: {},
-      chunk_index: {},
     });
   },
   sanitizeResources: false,

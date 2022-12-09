@@ -1,5 +1,4 @@
 import {
-  buildChunkTree,
   deleteChunk,
   readChunk,
   readMeta,
@@ -13,24 +12,16 @@ export function drop(directory: string, tenant: string, table: string) {
     throw `No table with name "${table}" to drop`;
   }
 
-  const chunkTree = buildChunkTree(meta, table);
-
-  for (const [chunkName, keys] of Object.entries(chunkTree)) {
+  for (const chunkName of meta.table_index[table].chunks) {
     const chunk = readChunk(directory, tenant, chunkName);
 
-    // Delete keys from key_index and chunk_index
-    for (const key of keys) {
+    // Delete keys from key_index
+    for (const key of Object.keys(chunk)) {
       delete meta.key_index[key];
-      delete meta.chunk_index[chunkName].keys[key];
-
-      delete chunk[key];
     }
 
-    // Delete chunk if empty
-    if (Object.keys(meta.chunk_index[chunkName].keys).length === 0) {
-      delete meta.chunk_index[chunkName];
-      deleteChunk(directory, tenant, chunkName);
-    }
+    // Delete actual chunk file
+    deleteChunk(directory, tenant, chunkName);
   }
 
   // Delete table in table_index
