@@ -436,9 +436,7 @@ Deno.test({
     let req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
       body: JSON.stringify({
-        query: {
-          name: "eq($, 'Yogi')",
-        },
+        where: "eq($name, 'Yogi')",
       }),
     });
 
@@ -452,9 +450,7 @@ Deno.test({
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
       ...basicFetchOptions,
       body: JSON.stringify({
-        query: {
-          age: "gt($, 10)",
-        },
+        where: "gt($age, 10)",
       }),
     });
 
@@ -492,17 +488,7 @@ Deno.test({
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
       ...basicFetchOptions,
       body: JSON.stringify({
-        queries: [
-          {
-            age: "eq($, 18)",
-          },
-          {
-            nested: {
-              property: "eq($, 'coder')",
-            },
-          },
-        ],
-        statement: "or($0, $1)",
+        where: "or(eq($age, 18), eq($nested.property, 'coder'))",
       }),
     });
 
@@ -511,17 +497,7 @@ Deno.test({
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
       ...basicFetchOptions,
       body: JSON.stringify({
-        queries: [
-          {
-            age: "eq($, 18)",
-          },
-          {
-            nested: {
-              property: "eq($, 'coder')",
-            },
-          },
-        ],
-        statement: "or($0, $1)",
+        where: "or(eq($age, 18), eq($nested.property, 'coder'))",
         show_keys: true,
         expand_keys: true,
       }),
@@ -570,17 +546,7 @@ Deno.test({
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
       ...basicFetchOptions,
       body: JSON.stringify({
-        queries: [
-          {
-            age: "eq($, 18)",
-          },
-          {
-            nested: {
-              property: "eq($, 'coder')",
-            },
-          },
-        ],
-        statement: "or($0, $1)",
+        where: "or(eq($age, 18), eq($nested.property, 'coder'))",
         max_results: 1,
       }),
     });

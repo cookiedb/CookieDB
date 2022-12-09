@@ -173,6 +173,9 @@ const res = await req.text(); // "success"
 Inserts a document into `:table:`, will error out if table does not exist. If
 passed an array, it will bulk insert several documents.
 
+Note: Documents may not have a top-level key by the name of `key`. They also may
+not have any keys with a `.` in them.
+
 Ex:
 
 ```javascript
@@ -297,21 +300,65 @@ const res = await req.text(); // "success"
 Selects a number of documents from `:table:` given a query or queries, will
 error out if table does not exist.
 
-There are two ways of constructing a query, depending on how complicated it is.
-In the simple syntax, there is simply just a `query` object. Let's see a sample:
+In the simple case, there is simply just a `where` object. Let's see a sample:
 
-```javascript
+```json
 {
-  query: {
-    name: "eq($, 'Bryan')",
-    age: "gt($, 10)"
-  }
+  "where": "eq($name, 'Bryan')"
 }
 ```
 
+For more complex queries, this is not enough. We can instead create a nested
+query with more complicated statements using CookieDB's extensive expressions
+(see below). An example is:
+
+```json
+{
+  "where": "or(eq($age, 18), eq($nested.property, 'builder'))"
+}
+```
+
+This would return any document that has an `age` property equal to `18` or a
+`nested.property` equal to `'builder'`. The statement can be arbitrarily
+complex.
+
+In addition to this, there are more optional arguments that can be included to
+customize the query more. Here is an example:
+
+```jsonc
+{
+  "where": "and(eq($name, 'Bryan'), gt($age, 10))",
+  "max_results": 1, // limits the number of results to a certain value
+  "show_keys": true, // return the keys of documents along with them
+  "expand_keys": true // automatically join foreign keys with the objects they link to
+}
+```
+
+Ex:
+
+```javascript
+const req = await fetch("/select/users", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify({
+    where: "and(eq($name, 'Bryan'), gt($age, 10))",
+    max_results: 1,
+    show_keys: true,
+    expand_keys: true,
+  }),
+});
+
+const res = await req.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
+```
+
+### Expressions
+
 We see here that we can query parts of objects using some simple expressions.
 These can be arbitrarily nested and combined. As you may have guessed, the `$`
-represents the value at that specific key. There are quite a few operators:
+operator allows for us to express that the value is a property and not just a .
+There are quite a few operators:
 
 - `and`
   - Takes in any number of inputs and does logical and on them
@@ -488,60 +535,3 @@ represents the value at that specific key. There are quite a few operators:
   - ex: `eq(sqrt(4), 2)`
 
 \* May not work as described due to technicalities
-
-For more complex queries, this is not enough. We can instead create a list of
-query objects with a statement to explain how to combine them. An example is:
-
-```javascript
-{
-  queries: [
-    {
-      age: "eq($, 18)",
-    },
-    {
-      nested: {
-        property: "eq($, 'builder')",
-      }
-    }
-  ],
-  statement: "or($0, $1)"
-}
-```
-
-This would return any document that matches the first OR the second query. The
-statement can be arbitrarily complex. There are three optional arguments that
-can be included regardless of the type of query. Here is an example:
-
-```javascript
-{
-  query: {
-    name: "eq($, 'Bryan')",
-    age: "gt($, 10)"
-  },
-  max_results: 1, // limits the number of results to a certain value
-  show_keys: true, // return the keys of documents along with them
-  expand_keys: true // automatically join foreign keys with the objects they link to
-}
-```
-
-Ex:
-
-```javascript
-const req = await fetch("/select/users", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${token}`,
-  },
-  body: JSON.stringify({
-    query: {
-      name: "eq($, 'Bryan')",
-      age: "gt($, 10)",
-    },
-    max_results: 1,
-    show_keys: true,
-    expand_keys: true,
-  }),
-});
-
-const res = await req.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
-```

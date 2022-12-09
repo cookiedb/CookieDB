@@ -3,7 +3,7 @@ import { assert } from "../../deps.ts";
 import { evaluateCondition, parseCondition } from "./condition.ts";
 
 const evaluate = (condition: string) => {
-  return evaluateCondition(parseCondition(condition, ""));
+  return evaluateCondition(parseCondition(condition, {}));
 };
 
 Deno.test("Examples in README work", () => {
