@@ -13,7 +13,7 @@ import { get } from "./src/operations/get.ts";
 import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
 import { del } from "./src/operations/delete.ts";
-import { selectQuery } from "./src/operations/select.ts";
+import { select } from "./src/operations/select.ts";
 import { ensureTenant } from "./src/util/fileOperations.ts";
 
 interface Config {
@@ -103,19 +103,17 @@ export function start(directory: string) {
 
         case "select": {
           body = body ?? {};
-          const maxResults = body.max_results ?? 100;
-          const showKeys = body.show_keys ?? false;
-          const expandKeys = body.expand_keys ?? false;
 
-          const results = selectQuery(
+          const results = select(
             directory,
             tenant,
             table,
             {
-              maxResults,
-              showKeys,
-              expandKeys,
-              where: body?.where ?? "",
+              maxResults: body.max_results ?? 100,
+              showKeys: body.show_keys ?? false,
+              expandKeys: body.expand_keys ?? false,
+              where: body.where ?? "",
+              alias: body.alias,
             },
           );
           return new Response(JSON.stringify(results), { status: 200 });

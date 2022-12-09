@@ -1,5 +1,6 @@
+import { evaluateCondition, parseCondition } from "./condition.ts";
 import { readChunk, readMeta } from "./fileOperations.ts";
-import { Document } from "./types.ts";
+import { Alias, Document } from "./types.ts";
 
 export function recursivelyExpandDocument(
   directory: string,
@@ -30,4 +31,21 @@ export function recursivelyExpandDocument(
     }
   }
   return document;
+}
+
+export function recursivelyExpandAlias(
+  alias: Alias,
+  document: Document,
+): Document {
+  const doc: Document = {};
+
+  for (const [key, value] of Object.entries(alias)) {
+    if (typeof value === "string") {
+      doc[key] = evaluateCondition(parseCondition(value, document));
+    } else {
+      doc[key] = recursivelyExpandAlias(value, document);
+    }
+  }
+
+  return doc;
 }

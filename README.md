@@ -322,8 +322,24 @@ This would return any document that has an `age` property equal to `18` or a
 `nested.property` equal to `'builder'`. The statement can be arbitrarily
 complex.
 
-In addition to this, there are more optional arguments that can be included to
-customize the query more. Here is an example:
+Next up on the list of features, we have aliasing, which allows us not only to
+simply choose what fields we would like to have and which we would like to
+ignore, but also allows us to do arbitrary operations on them. One example
+usecase is:
+
+```jsonc
+{
+  "alias": {
+    "name": "$name", // keep this field without any modifications
+    "is_not_cool": "not($is_cool)", // make a new field name that uses selected documents as inputs!
+    "age_doubled": "multiply($age, 2)",
+    "flattened": "$nested.property"
+  }
+}
+```
+
+In addition to this, there are three more optional arguments that can be
+included to customize the query more. Here is an example:
 
 ```jsonc
 {
