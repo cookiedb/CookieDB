@@ -616,6 +616,59 @@ Deno.test({
 });
 
 Deno.test({
+  name: "Able to query metadata for tables",
+  async fn() {
+    let req = await fetch(
+      `http://localhost:8777/meta/table`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.json(), { schema: null });
+
+    req = await fetch(
+      `http://localhost:8777/meta/tableWithSchema`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.json(), {
+      schema: {
+        name: "string",
+        description: "string?",
+        cool: "boolean",
+        exists: "boolean?",
+        age: "number",
+        height: "number?",
+        best_friend: "foreign_key?",
+        nested: { property: "string", another_level: { property: "string" } },
+      },
+    });
+
+    req = await fetch(
+      `http://localhost:8777/meta`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.json(), {
+      table: { schema: null },
+      tableWithSchema: {
+        schema: {
+          name: "string",
+          description: "string?",
+          cool: "boolean",
+          exists: "boolean?",
+          age: "number",
+          height: "number?",
+          best_friend: "foreign_key?",
+          nested: { property: "string", another_level: { property: "string" } },
+        },
+      },
+    });
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
   name: "Able to drop tables",
   async fn() {
     let req = await fetch(

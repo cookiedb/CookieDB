@@ -295,6 +295,24 @@ const req = await fetch("/update/users/b94a8779-f737-466b-ac40-4dfb130f0eee", {
 const res = await req.text(); // "success"
 ```
 
+#### POST: `/meta/:table?:`
+
+Gets metadata from `:table:` if specified. Otherwise it will return metadata for
+all tables for the user.
+
+Ex:
+
+```javascript
+const req = await fetch("/meta/users", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${token}`,
+  },
+});
+
+const res = await req.json(); // { name: "string", description: "string?", is_cool: "boolean", age: "number", best_friend: "foreign_key?", nested: { property: "string"}}
+```
+
 #### POST: `/select/:table:`
 
 Selects a number of documents from `:table:` given a query or queries, will
