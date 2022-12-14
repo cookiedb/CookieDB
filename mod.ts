@@ -15,6 +15,7 @@ import { drop } from "./src/operations/drop.ts";
 import { del } from "./src/operations/delete.ts";
 import { select } from "./src/operations/select.ts";
 import { ensureTenant } from "./src/util/fileOperations.ts";
+import { meta } from "./src/operations/meta.ts";
 
 interface Config {
   port: number;
@@ -134,6 +135,13 @@ export function start(directory: string) {
           const expandKeys = body.expand_keys ?? false;
           return new Response(
             JSON.stringify(get(directory, tenant, table, key, { expandKeys })),
+            { status: 200 },
+          );
+        }
+
+        case "meta": {
+          return new Response(
+            JSON.stringify(meta(directory, tenant, table)),
             { status: 200 },
           );
         }
