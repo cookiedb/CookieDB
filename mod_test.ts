@@ -595,6 +595,48 @@ Deno.test({
 });
 
 Deno.test({
+  name: "Able to select values by order",
+  async fn() {
+    let req = await fetch(`http://localhost:8777/select/table`, {
+      ...basicFetchOptions,
+      body: JSON.stringify({
+        order: {
+          by: "$age",
+        },
+        max_results: 1,
+      }),
+    });
+
+    assertEquals(await req.json(), [{
+      name: "Yogi4",
+      age: 16,
+      cool: true,
+      description: "The best avenger",
+    }]);
+
+    req = await fetch(`http://localhost:8777/select/table`, {
+      ...basicFetchOptions,
+      body: JSON.stringify({
+        order: {
+          descending: true,
+          by: "$age",
+        },
+        max_results: 1,
+      }),
+    });
+
+    assertEquals(await req.json(), [{
+      name: "Yogi",
+      age: 13,
+      cool: true,
+      description: "The best avenger",
+    }]);
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
   name: "Able to delete documents by key",
   async fn() {
     let req = await fetch(

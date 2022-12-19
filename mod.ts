@@ -115,6 +115,7 @@ export function start(directory: string) {
               expandKeys: body.expand_keys ?? false,
               where: body.where ?? "",
               alias: body.alias,
+              order: body.order,
             },
           );
           return new Response(JSON.stringify(results), { status: 200 });
