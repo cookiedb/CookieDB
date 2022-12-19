@@ -12,6 +12,10 @@ interface QueryOptions {
   expandKeys: boolean;
   where: string;
   alias?: Alias;
+  order?: {
+    descending?: boolean;
+    by: string;
+  };
 }
 
 export function select(
@@ -26,13 +30,13 @@ export function select(
     throw `No table with name "${table}" to select from`;
   }
 
-  const results: Document[] = [];
+  let results: Document[] = [];
 
   for (const chunkName of meta.table_index[table].chunks) {
     const chunk = readChunk(directory, tenant, chunkName);
     for (const key of Object.keys(chunk)) {
       const document = chunk[key];
-      if (opts.maxResults === results.length) {
+      if (!opts.order && opts.maxResults === results.length) {
         break;
       }
 
@@ -53,6 +57,30 @@ export function select(
 
         results.push(doc);
       }
+    }
+  }
+
+  if (opts.order !== undefined) {
+    results.sort((a, b) => {
+      if (!opts.order) return 0;
+      const valueA = evaluateCondition(parseCondition(opts.order.by, a));
+      const valueB = evaluateCondition(parseCondition(opts.order.by, b));
+
+      if (valueA === null || valueB === null) throw `Can't order by null value`;
+
+      if (opts.order.descending) {
+        if (valueA > valueB) return 1;
+        if (valueA < valueB) return -1;
+      } else {
+        if (valueA > valueB) return -1;
+        if (valueA < valueB) return 1;
+      }
+
+      return 0;
+    });
+
+    if (opts.maxResults > 0) {
+      results = results.slice(0, opts.maxResults);
     }
   }
 
