@@ -66,14 +66,16 @@ you need more specifics, here they are:
 - help: Show a menu listing off cookie CLI commands, as well as any global flags
 - init: Initializes a cookie database instance given a certain folder. If no
   folder is specified, it will assume the current directory.
-- make_user: Creates a database tenant in the configuration file. It accepts a
-  directory with a initialized cookie database as an argument and two flags. If
-  no directory is specified, it assumes the current directory. Both flags are
+- create_user: Creates a database tenant in the configuration file. It accepts a
+  directory with a initialized cookie database as an argument and three flags.
+  If no directory is specified, it assumes the current directory. All flags are
   optional.
-  - One of them is `--name=EXAMPLE_NAME`, which allows you to specify the
+  - One of them is `--username=EXAMPLE_NAME`, which allows you to specify the
     username of this user. This must be unique among users.
-  - The other is `--auth=EXAMPLE_AUTH`, **this should only be used if you
+  - The second is `--token=EXAMPLE_AUTH`, **this should only be used if you
     already have a cryptographically secure token**.
+  - The third is `--admin`, this should only be used if you want this user to be
+    able to programatically create and remove users
 - start: Starts the database instance given a certain folder. If none is
   specified, it assumes the current directory.
 
@@ -389,6 +391,31 @@ const req = await fetch("/select/users", {
 });
 
 const res = await req.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
+```
+
+#### POST: `/create_user/`
+
+Note: You must have an admin key to use this route
+
+Creates a user with an optional username and api token.
+
+```json
+{
+  "username": "test_user",
+  "token": "a_randomly_generated_token"
+}
+```
+
+#### POST: `/delete_user/:username:`
+
+Note: You must have an admin key to use this route
+
+Deletes a user with by username
+
+```json
+{
+  "username": "test_user"
+}
 ```
 
 ### Expressions

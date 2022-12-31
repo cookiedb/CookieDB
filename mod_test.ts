@@ -5,7 +5,7 @@ import { readMeta } from "./src/util/fileOperations.ts";
 // delete folder to get fresh start
 try {
   Deno.removeSync("./test", { recursive: true });
-} catch (_err) {
+} catch {
   // no op, the directory didn't already exist
 }
 
@@ -13,20 +13,28 @@ try {
 init("./test");
 
 // create two users
-const { name, auth } = createUser("./test", {
-  name: "admin",
+const { username: name, token: auth } = createUser("./test", {
+  username: "user",
 });
-assertEquals(name, "admin");
+assertEquals(name, "user");
 
-const { name: name2 } = createUser("./test", {
-  name: "user",
+const { username: name_admin, token: auth_admin } = createUser("./test", {
+  username: "admin",
+  admin: true,
 });
-assertEquals(name2, "user");
+assertEquals(name_admin, "admin");
 
 const basicFetchOptions = {
   method: "POST",
   headers: {
     "Authorization": `Bearer ${auth}`,
+  },
+};
+
+const adminFetchOptions = {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${auth_admin}`,
   },
 };
 
@@ -734,10 +742,45 @@ Deno.test({
 Deno.test({
   name: "Properly cleaned up meta",
   fn() {
-    assertEquals(readMeta("./test", "admin"), {
+    assertEquals(readMeta("./test", "user"), {
       key_index: {},
       table_index: {},
     });
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
+  name: "Able to create and delete users",
+  async fn() {
+    let req = await fetch(
+      `http://localhost:8777/create_user`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.text(), "You are not an admin of this database");
+
+    req = await fetch(
+      `http://localhost:8777/create_user`,
+      adminFetchOptions,
+    );
+
+    const user = await req.json();
+
+    req = await fetch(
+      `http://localhost:8777/delete_user`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.text(), "You are not an admin of this database");
+
+    req = await fetch(
+      `http://localhost:8777/delete_user/${user.username}`,
+      adminFetchOptions,
+    );
+
+    assertEquals(await req.text(), "success");
   },
   sanitizeResources: false,
   sanitizeOps: false,
