@@ -28,3 +28,15 @@ export interface Meta {
 }
 
 export type Chunk = Record<string, Document>;
+
+export interface Config {
+  port: number;
+  log: boolean;
+  users: Record<string, string>;
+  admins: string[];
+  cert_file?: string;
+  key_file?: string;
+  advanced: {
+    max_documents_per_chunk: number;
+  };
+}

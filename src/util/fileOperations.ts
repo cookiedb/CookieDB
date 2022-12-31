@@ -64,3 +64,16 @@ export function ensureTenant(directory: string, tenant: string) {
     });
   }
 }
+
+export function deleteTenant(directory: string, tenant: string) {
+  try {
+    Deno.removeSync(resolve(directory, "users", tenant), {
+      recursive: true,
+    });
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      return; // ignore these errors
+    }
+    throw err;
+  }
+}

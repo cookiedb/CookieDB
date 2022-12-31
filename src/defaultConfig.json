@@ -2,6 +2,7 @@
   "port": "8777",
   "log": false,
   "users": {},
+  "admins": [],
   "advanced": {
     "max_documents_per_chunk": 10000
   }

@@ -14,19 +14,10 @@ import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
 import { del } from "./src/operations/delete.ts";
 import { select } from "./src/operations/select.ts";
-import { ensureTenant } from "./src/util/fileOperations.ts";
+import { deleteTenant, ensureTenant } from "./src/util/fileOperations.ts";
 import { meta } from "./src/operations/meta.ts";
-
-interface Config {
-  port: number;
-  log: boolean;
-  users: Record<string, string>;
-  cert_file?: string;
-  key_file?: string;
-  advanced: {
-    max_documents_per_chunk: number;
-  };
-}
+import { Config } from "./src/util/types.ts";
+import { validateAdmin } from "./src/util/validateAdmin.ts";
 
 export function init(directory: string) {
   console.log("Making directory...");
@@ -146,6 +137,32 @@ export function start(directory: string) {
             { status: 200 },
           );
         }
+
+        case "create_user": {
+          body = body ?? {};
+
+          validateAdmin(tenant, config);
+
+          const user = createUser(directory, {
+            username: body.username,
+            token: body.token,
+            admin: body.admin,
+          });
+
+          return new Response(
+            JSON.stringify(user),
+            { status: 200 },
+          );
+        }
+
+        case "delete_user": {
+          validateAdmin(tenant, config);
+
+          deleteUser(directory, table);
+          deleteTenant(directory, table);
+
+          break;
+        }
       }
       return new Response("success", { status: 200 });
     } catch (err) {
@@ -169,24 +186,49 @@ export function start(directory: string) {
 
 export function createUser(
   directory: string,
-  opts: { name?: string; auth?: string },
+  opts: { username?: string; token?: string; admin?: boolean },
 ) {
   const configPath = resolve(directory, "./config.json");
   const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
 
-  const name = opts.name ?? cryptoRandomString({ length: 10 });
-  let auth = opts.auth ?? cryptoRandomString({ length: 32, type: "base64" });
+  const username = opts.username ?? cryptoRandomString({ length: 10 });
+  let token = opts.token ?? cryptoRandomString({ length: 32, type: "base64" });
 
-  while (Object.hasOwn(config.users, auth)) {
-    auth = cryptoRandomString({ length: 32, type: "base64" });
+  while (Object.hasOwn(config.users, token)) {
+    token = cryptoRandomString({ length: 32, type: "base64" });
   }
 
-  config.users[auth] = name;
+  config.users[token] = username;
+
+  if (opts.admin) {
+    config.admins.push(username);
+  }
 
   Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2));
 
   return {
-    name,
-    auth,
+    username,
+    token,
   };
+}
+
+export function deleteUser(
+  directory: string,
+  name: string,
+) {
+  const configPath = resolve(directory, "./config.json");
+  const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
+
+  config.admins.splice(config.admins.indexOf(name), 1);
+
+  for (const [token, cur_name] of Object.entries(config.users)) {
+    if (name === cur_name) {
+      delete config.users[token];
+      break;
+    }
+  }
+
+  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2));
+
+  return name;
 }

@@ -3,13 +3,12 @@ import { resolve } from "./deps.ts";
 import { printError, printLogo } from "./src/util/print.ts";
 import { createUser, init, start } from "./mod.ts";
 
-const command = parse(Deno.args);
+const command = parse(Deno.args, {
+  boolean: ["no-fun", "admin"],
+  string: ["username", "token"],
+});
 
-function run(cmd: {
-  // deno-lint-ignore no-explicit-any
-  [x: string]: any;
-  _: (string | number)[];
-}) {
+function run(cmd: typeof command) {
   if (cmd._.length === 0) {
     return printError("No arguments provided, try `cookie help`");
   }
@@ -21,7 +20,7 @@ function run(cmd: {
         return printError("Directory is not valid");
       }
       const dir = resolve(cmd._[1]);
-      printLogo(cmd["no-fun"] ? false : true);
+      printLogo(!cmd["no-fun"]);
       init(dir);
       return;
     }
@@ -31,13 +30,13 @@ function run(cmd: {
       if (cmd._.length === 2 && typeof cmd._[1] === "string") {
         dir = resolve(cmd._[1]);
       }
-      printLogo(cmd["no-fun"] ? false : true);
+      printLogo(!cmd["no-fun"]);
       start(dir);
       return;
     }
 
     case "help": {
-      printLogo(cmd["no-fun"] ? false : true);
+      printLogo(!cmd["no-fun"]);
       console.log(
         "Welcome to CookieDB, to get started please check out our github: https://github.com/cookiedb/CookieDB\n",
       );
@@ -47,7 +46,7 @@ function run(cmd: {
         "- init: initialize a database within a specific directory (`cookie init ./test`)",
       );
       console.log(
-        "- make_user: generate a user account for the database (`cookie make_user ./test --name=admin`)",
+        "- create_user: generate a user account for the database (`cookie create_user ./test --username=admin`)",
       );
       console.log("- start: start the database (`cookie start ./test`)");
 
@@ -57,17 +56,22 @@ function run(cmd: {
       return;
     }
 
-    case "make_user": {
+    case "create_user": {
       let dir = resolve("./");
       if (cmd._.length === 2 && typeof cmd._[1] === "string") {
         dir = resolve(cmd._[1]);
       }
       printLogo(cmd["no-fun"] ? false : true);
-      const { name, auth } = createUser(dir, {
-        name: cmd.name,
-        auth: cmd.auth,
+      const { username, token } = createUser(dir, {
+        username: cmd.username,
+        token: cmd.token,
+        admin: cmd.admin,
       });
-      console.log(`Created user "${name}" with bearer token "${auth}"`);
+      console.log(
+        `Created ${
+          cmd.admin ? "admin" : "user"
+        } "${username}" with bearer token "${token}"`,
+      );
       return;
     }
 

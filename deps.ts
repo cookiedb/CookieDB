@@ -6,6 +6,7 @@ export { ensureDirSync } from "https://deno.land/std@0.170.0/fs/mod.ts";
 export {
   assert,
   assertEquals,
+  assertNotEquals,
 } from "https://deno.land/std@0.170.0/testing/asserts.ts";
 export {
   bold,
