@@ -12,6 +12,14 @@ export function drop(directory: string, tenant: string, table: string) {
     throw `No table with name "${table}" to drop`;
   }
 
+  for (const key of Object.keys(meta.row_index)) {
+    const tableName = key.split(".")[0];
+
+    if (tableName === table) {
+      delete meta.row_index[key];
+    }
+  }
+
   for (const chunkName of meta.table_index[table].chunks) {
     const chunk = readChunk(directory, tenant, chunkName);
 

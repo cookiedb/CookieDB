@@ -1,12 +1,23 @@
+export type SchemaTypes = "string" | "boolean" | "number" | "foreign_key";
+
+export type SchemaKeywords = SchemaTypes | "nullable" | "unique";
+
+// I need to find a better way to do this :/
+export type SchemaEntry =
+  | SchemaTypes
+  | `nullable ${SchemaTypes}`
+  | `${SchemaTypes} nullable`
+  | `unique ${SchemaTypes}`
+  | `${SchemaTypes} unique`
+  | `unique nullable ${SchemaTypes}`
+  | `unique ${SchemaTypes} nullable`
+  | `${SchemaTypes} unique nullable`
+  | `nullable ${SchemaTypes} unique`
+  | `${SchemaTypes} nullable unique`
+  | `nullable unique ${SchemaTypes}`;
+
 export interface Schema {
-  [key: string]:
-    | "string"
-    | "string?"
-    | "boolean"
-    | "boolean?"
-    | "number"
-    | "number?"
-    | Schema;
+  [key: string]: SchemaEntry | Schema;
 }
 
 export interface Document {
@@ -20,7 +31,8 @@ export interface Alias {
 export type PossibleTypes = string | boolean | number | null;
 
 export interface Meta {
-  key_index: Record<string, string[]>;
+  key_index: Record<string, [string, string]>;
+  row_index: Record<string, Record<string, string>>;
   table_index: Record<string, {
     schema: Schema | null;
     chunks: string[];

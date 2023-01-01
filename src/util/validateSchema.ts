@@ -1,6 +1,15 @@
-import { Document, Meta, Schema } from "./types.ts";
+import {
+  Document,
+  Meta,
+  Schema,
+  SchemaKeywords,
+  SchemaTypes,
+} from "./types.ts";
 
-export function validateSchema(
+/**
+ * This method takes in a document and a schema and validates the document
+ */
+export function validateDocumentWithSchema(
   meta: Meta,
   document: Document,
   schema: Schema,
@@ -37,7 +46,7 @@ export function validateSchema(
         }`;
       }
 
-      validateSchema(meta, value, schema[key] as Schema);
+      validateDocumentWithSchema(meta, value, schema[key] as Schema);
       continue;
     }
 
@@ -52,16 +61,16 @@ export function validateSchema(
 
     if (typeof rawSpec !== "string") throw `Invalid specification: ${rawSpec}`;
 
-    const spec = rawSpec.replace("?", "") as
-      | "string"
-      | "boolean"
-      | "number"
-      | "foreign_key";
-    const nullable: boolean = rawSpec.includes("?");
+    const spec = rawSpec.split(" ") as SchemaKeywords[];
+    const type = spec.find((v) =>
+      ["string", "boolean", "number", "foreign_key"].includes(v)
+    ) as SchemaTypes;
+    const nullable: boolean = spec.includes("nullable");
+    // note to reader: the unique check is in verifyDocument and not in validateSchema /shrug
     if (nullable && value === null) continue;
 
     // deal with foreign_key
-    if (spec === "foreign_key") {
+    if (type === "foreign_key") {
       if (typeof value !== "string") {
         throw `Expected a foreign key for key "${key}", got "${value}"`;
       }
@@ -74,8 +83,55 @@ export function validateSchema(
 
     // deal with everything else
     // deno-lint-ignore valid-typeof
-    if (typeof value !== spec) {
-      throw `Expected ${rawSpec} for key "${key}", got "${value}"`;
+    if (typeof value !== type) {
+      throw `Expected ${type} for key "${key}", got "${value}"`;
+    }
+  }
+}
+
+/**
+ * This method makes sure that a schema isn't invalid.
+ */
+export function validateSchema(schema: unknown) {
+  if (typeof schema !== "object" || schema === null) {
+    throw `Unexpected value in schema ${typeof schema}`;
+  }
+
+  for (const value of Object.values(schema)) {
+    if (typeof value === "object") {
+      validateSchema(value);
+      continue;
+    }
+
+    if (typeof value !== "string") {
+      throw `Unexpected value in schema ${typeof schema}`;
+    }
+
+    const spec = value.split(" ");
+
+    // Validate that there is at least one type in the schema
+    let has_type = false;
+    for (const value of spec) {
+      if (["string", "boolean", "number", "foreign_key"].includes(value)) {
+        has_type = true;
+        continue;
+      }
+    }
+    if (!has_type) throw `Schema value does not include any types in ${value}`;
+
+    // Validate that there aren't duplicate keywords in the schema
+    if (spec.length !== [...new Set(spec)].length) {
+      throw `Duplicate schema value found in ${value}`;
+    }
+
+    // Validate that there aren't invalid keywords in the schema
+    for (const value of spec) {
+      if (
+        !["string", "boolean", "number", "foreign_key", "nullable", "unique"]
+          .includes(value)
+      ) {
+        throw `Unexpected schema value ${value} in ${value}`;
+      }
     }
   }
 }

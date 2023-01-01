@@ -5,6 +5,7 @@ import {
   writeChunk,
   writeMeta,
 } from "../util/fileOperations.ts";
+import { unindexDocument } from "../util/indexDocument.ts";
 
 export function del(
   directory: string,
@@ -28,6 +29,13 @@ export function del(
 
   // Delete document from chunk
   const chunk = readChunk(directory, tenant, chunkName);
+
+  // Unindex document
+  const schema = meta.table_index[table].schema;
+  if (schema) {
+    unindexDocument(chunk[key], schema, meta, table);
+  }
+
   delete chunk[key];
 
   // Delete chunk if empty, otherwise just update it

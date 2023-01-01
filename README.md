@@ -115,8 +115,11 @@ Creates a table with the name `:table:`, if it does not already exist.
 
 You may optionally define a schema that will be enforced when documents are
 added and updated. A schema object is simply a JSON object in which all keys
-have a value of a `"string"`, `"string?"`, `"number"`, `"number?"`, `"boolean"`,
-`"boolean?"`, `array`, or `object`. The `?` represents that a value is nullable.
+have are strings. Strings are made up of properties of that field. If you choose
+to define a schema, the properties must include a type. Valid types are
+"string", "number", "boolean", and "foreign_key". There are also additional
+keywords you made add that helps enforce consistency at a database level. There
+are currently two of them: "unique" and "nullable".
 
 Ex:
 
@@ -138,11 +141,11 @@ const req = await fetch("/create/users", {
     "Authorization": `Bearer ${token}`,
   },
   body: JSON.stringify({
-    name: "string",
-    description: "string?",
+    name: "unique string",
+    description: "nullable string",
     is_cool: "boolean",
     age: "number",
-    best_friend: "foreign_key?",
+    best_friend: "nullable foreign_key",
     nested: {
       property: "string",
     },
@@ -312,7 +315,7 @@ const req = await fetch("/meta/users", {
   },
 });
 
-const res = await req.json(); // { name: "string", description: "string?", is_cool: "boolean", age: "number", best_friend: "foreign_key?", nested: { property: "string"}}
+const res = await req.json(); // { name: "string", description: "nullable string", is_cool: "boolean", age: "number", best_friend: "nullable foreign_key", nested: { property: "string"}}
 ```
 
 #### POST: `/select/:table:`

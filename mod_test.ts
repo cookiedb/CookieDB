@@ -77,13 +77,13 @@ Deno.test({
     const req = await fetch("http://localhost:8777/create/tableWithSchema", {
       ...basicFetchOptions,
       body: JSON.stringify({
-        name: "string",
-        description: "string?",
+        name: "unique string",
+        description: "nullable string",
         cool: "boolean",
-        exists: "boolean?",
+        exists: "nullable boolean",
         age: "number",
-        height: "number?",
-        best_friend: "foreign_key?",
+        height: "nullable number",
+        best_friend: "nullable foreign_key",
         nested: {
           property: "string",
           another_level: {
@@ -682,13 +682,13 @@ Deno.test({
 
     assertEquals(await req.json(), {
       schema: {
-        name: "string",
-        description: "string?",
+        name: "unique string",
+        description: "nullable string",
         cool: "boolean",
-        exists: "boolean?",
+        exists: "nullable boolean",
         age: "number",
-        height: "number?",
-        best_friend: "foreign_key?",
+        height: "nullable number",
+        best_friend: "nullable foreign_key",
         nested: { property: "string", another_level: { property: "string" } },
       },
     });
@@ -702,13 +702,13 @@ Deno.test({
       table: { schema: null },
       tableWithSchema: {
         schema: {
-          name: "string",
-          description: "string?",
+          name: "unique string",
+          description: "nullable string",
           cool: "boolean",
-          exists: "boolean?",
+          exists: "nullable boolean",
           age: "number",
-          height: "number?",
-          best_friend: "foreign_key?",
+          height: "nullable number",
+          best_friend: "nullable foreign_key",
           nested: { property: "string", another_level: { property: "string" } },
         },
       },
@@ -744,6 +744,7 @@ Deno.test({
   fn() {
     assertEquals(readMeta("./test", "user"), {
       key_index: {},
+      row_index: {},
       table_index: {},
     });
   },

@@ -4,8 +4,9 @@ import {
   writeChunk,
   writeMeta,
 } from "../util/fileOperations.ts";
+import { indexDocument, verifyDocument } from "../util/indexDocument.ts";
 import { Document, Meta } from "../util/types.ts";
-import { validateSchema } from "../util/validateSchema.ts";
+import { validateDocumentWithSchema } from "../util/validateSchema.ts";
 
 interface InsertOpts {
   maxDocumentsPerChunk: number;
@@ -48,7 +49,8 @@ export function insert(
   const schema = meta.table_index[table].schema;
 
   if (schema) {
-    validateSchema(meta, document, schema);
+    validateDocumentWithSchema(meta, document, schema);
+    verifyDocument(document, schema, meta, table);
   }
 
   const key = crypto.randomUUID();
@@ -61,6 +63,8 @@ export function insert(
   );
 
   meta.key_index[key] = [table, chunkName];
+
+  if (schema) indexDocument(document, schema, meta, table, key);
 
   writeMeta(directory, tenant, meta);
 
@@ -97,13 +101,16 @@ export function bulkInsert(
 
   for (const document of documents) {
     if (schema) {
-      validateSchema(meta, document, schema);
+      validateDocumentWithSchema(meta, document, schema);
+      verifyDocument(document, schema, meta, table);
     }
 
     const key = crypto.randomUUID();
 
     meta.key_index[key] = [table, chunkName];
     chunk[key] = document;
+
+    if (schema) indexDocument(document, schema, meta, table, key);
 
     // if chunk is full, get a new valid chunk to start writing into
     if (Object.keys(chunk).length >= opts.maxDocumentsPerChunk) {

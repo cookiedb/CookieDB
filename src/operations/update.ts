@@ -1,6 +1,11 @@
 import { readChunk, readMeta, writeChunk } from "../util/fileOperations.ts";
+import {
+  indexDocument,
+  unindexDocument,
+  verifyDocument,
+} from "../util/indexDocument.ts";
 import { Document } from "../util/types.ts";
-import { validateSchema } from "../util/validateSchema.ts";
+import { validateDocumentWithSchema } from "../util/validateSchema.ts";
 
 export function update(
   directory: string,
@@ -23,10 +28,16 @@ export function update(
   const schema = meta.table_index[table].schema;
 
   if (schema) {
-    validateSchema(meta, document, schema);
+    validateDocumentWithSchema(meta, document, schema);
+    verifyDocument(document, schema, meta, table, key);
   }
 
   const chunk = readChunk(directory, tenant, chunkName);
+
+  if (schema) {
+    unindexDocument(chunk[key], schema, meta, table);
+    indexDocument(document, schema, meta, table, key);
+  }
   chunk[key] = document;
   writeChunk(directory, tenant, chunkName, chunk);
 
