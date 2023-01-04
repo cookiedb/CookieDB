@@ -13,3 +13,4 @@ export {
   brightRed,
   rgb24,
 } from "https://deno.land/std@0.170.0/fmt/colors.ts";
+export * as supportsColor from "https://deno.land/x/supports_color@0.1.0/mod.ts";
