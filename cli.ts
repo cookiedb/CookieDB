@@ -1,4 +1,4 @@
-import { parse } from "./deps.ts";
+import { parse, supportsColor } from "./deps.ts";
 import { resolve } from "./deps.ts";
 import { printError, printLogo } from "./src/util/print.ts";
 import { createUser, init, start } from "./mod.ts";
@@ -13,6 +13,8 @@ function run(cmd: typeof command) {
     return printError("No arguments provided, try `cookie help`");
   }
 
+  const fun = cmd["no-fun"] ? false : supportsColor.default.stdout.has16m;
+
   switch (cmd._[0]) {
     case "init": {
       if (cmd._.length < 2) return printError("No directory specified");
@@ -20,7 +22,7 @@ function run(cmd: typeof command) {
         return printError("Directory is not valid");
       }
       const dir = resolve(cmd._[1]);
-      printLogo(!cmd["no-fun"]);
+      printLogo(fun);
       init(dir);
       return;
     }
@@ -30,13 +32,13 @@ function run(cmd: typeof command) {
       if (cmd._.length === 2 && typeof cmd._[1] === "string") {
         dir = resolve(cmd._[1]);
       }
-      printLogo(!cmd["no-fun"]);
+      printLogo(fun);
       start(dir);
       return;
     }
 
     case "help": {
-      printLogo(!cmd["no-fun"]);
+      printLogo(fun);
       console.log(
         "Welcome to CookieDB, to get started please check out our github: https://github.com/cookiedb/CookieDB\n",
       );
@@ -61,7 +63,7 @@ function run(cmd: typeof command) {
       if (cmd._.length === 2 && typeof cmd._[1] === "string") {
         dir = resolve(cmd._[1]);
       }
-      printLogo(cmd["no-fun"] ? false : true);
+      printLogo(fun);
       const { username, token } = createUser(dir, {
         username: cmd.username,
         token: cmd.token,

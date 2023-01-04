@@ -46,6 +46,8 @@
     "https://deno.land/x/crypto_random_string@1.1.0/constants.ts": "834f718bc3e7bba4d19a28cbc9d289309c6c3db5d6486c300d509fffa42a75d6",
     "https://deno.land/x/crypto_random_string@1.1.0/cryptoRandomString.ts": "301046e469dd9228171262b8c1ae31aa44ae1a7595ba0e2dbbc464819ad9aa43",
     "https://deno.land/x/crypto_random_string@1.1.0/deps.ts": "742c4c04df39a5fcc8939d3a2c9052229c2e2d61c2d7af5317fcbee5dd93c2ff",
-    "https://deno.land/x/crypto_random_string@1.1.0/mod.ts": "f5513407c5efa5d4d25a61965ad5a3cd62d0f7d57246fe8db4b8d2ef2a630380"
+    "https://deno.land/x/crypto_random_string@1.1.0/mod.ts": "f5513407c5efa5d4d25a61965ad5a3cd62d0f7d57246fe8db4b8d2ef2a630380",
+    "https://deno.land/x/supports_color@0.1.0/deps.ts": "f74c05f806dcf43ca5c4e05ee5bea126c1eb649ea4b034de274b6c138edfe95a",
+    "https://deno.land/x/supports_color@0.1.0/mod.ts": "37ffd58fc01151d8fea6fc9d451963b6f15cb65199fc8d9ce15caad4564c2953"
   }
 }
