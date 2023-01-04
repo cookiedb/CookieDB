@@ -1,6 +1,9 @@
 import { ensureDirSync, resolve } from "../../deps.ts";
 import { Chunk, Meta } from "./types.ts";
 
+/**
+ * Given a chunk this locates and reads the chunk into memory
+ */
 export function readChunk(
   directory: string,
   tenant: string,
@@ -15,6 +18,9 @@ export function readChunk(
   }
 }
 
+/**
+ * Given a chunk and contents this locates and writes the chunk to disk
+ */
 export function writeChunk(
   directory: string,
   tenant: string,
@@ -25,6 +31,9 @@ export function writeChunk(
   Deno.writeTextFileSync(chunkPath, JSON.stringify(chunk));
 }
 
+/**
+ * Given a chunk this removes a chunk from the disk
+ */
 export function deleteChunk(
   directory: string,
   tenant: string,
@@ -34,6 +43,9 @@ export function deleteChunk(
   Deno.remove(chunkPath);
 }
 
+/**
+ * Given a user this reads the user's index into memory
+ */
 export function readMeta(directory: string, tenant: string): Meta {
   const metaPath = resolve(directory, "users", tenant, "__meta__.ck");
   try {
@@ -44,11 +56,18 @@ export function readMeta(directory: string, tenant: string): Meta {
   }
 }
 
+/**
+ * Given a user and content this writes a users index to disk
+ */
 export function writeMeta(directory: string, tenant: string, meta: Meta) {
   const metaPath = resolve(directory, "users", tenant, "__meta__.ck");
   Deno.writeTextFileSync(metaPath, JSON.stringify(meta));
 }
 
+/**
+ * Creates all of the directories that would be read/written to avoid errors in those cases.
+ * Technically a TOCTOA violation but this would be quite rare.
+ */
 export function ensureTenant(directory: string, tenant: string) {
   // Make sure tenant exists
   ensureDirSync(resolve(directory, "users", tenant));
@@ -66,6 +85,9 @@ export function ensureTenant(directory: string, tenant: string) {
   }
 }
 
+/**
+ * Given a tenant this will remove all information on disk about them
+ */
 export function deleteTenant(directory: string, tenant: string) {
   try {
     Deno.removeSync(resolve(directory, "users", tenant), {

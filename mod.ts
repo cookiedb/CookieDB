@@ -19,6 +19,9 @@ import { meta } from "./src/operations/meta.ts";
 import { Config } from "./src/util/types.ts";
 import { validateAdmin } from "./src/util/validateAdmin.ts";
 
+/**
+ * Initialize CookieDB in directory
+ */
 export function init(directory: string) {
   console.log("Making directory...");
   ensureDirSync(directory);
@@ -31,6 +34,9 @@ export function init(directory: string) {
   console.log("Generated config");
 }
 
+/**
+ * Start the CookieDB http server on directory
+ */
 export function start(directory: string) {
   const config: Config = {
     ...defaultConfig,
@@ -184,6 +190,9 @@ export function start(directory: string) {
   }
 }
 
+/**
+ * Create a database user in a directory
+ */
 export function createUser(
   directory: string,
   opts: { username?: string; token?: string; admin?: boolean },
@@ -212,6 +221,9 @@ export function createUser(
   };
 }
 
+/**
+ * Delete a database user in a directory
+ */
 export function deleteUser(
   directory: string,
   name: string,

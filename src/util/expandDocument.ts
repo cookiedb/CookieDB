@@ -2,6 +2,10 @@ import { evaluateCondition, parseCondition } from "./condition.ts";
 import { readChunk, readMeta } from "./fileOperations.ts";
 import { Alias, Document } from "./types.ts";
 
+/**
+ * Given a document this will look for keys and replace them with the full document it represents.
+ * This happens recursively and does not check for loops so this is a dangerous method.
+ */
 export function recursivelyExpandDocument(
   directory: string,
   tenant: string,
@@ -33,6 +37,9 @@ export function recursivelyExpandDocument(
   return document;
 }
 
+/**
+ * Given an alias definition and a document, this method will recursively evaluate each alias and return a modified document
+ */
 export function recursivelyExpandAlias(
   alias: Alias,
   document: Document,

@@ -18,6 +18,9 @@ interface QueryOptions {
   };
 }
 
+/**
+ * Given a query return a list of documents that match it
+ */
 export function select(
   directory: string,
   tenant: string,

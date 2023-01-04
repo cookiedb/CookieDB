@@ -7,6 +7,9 @@ import {
 import { Document } from "../util/types.ts";
 import { validateDocumentWithSchema } from "../util/validateSchema.ts";
 
+/**
+ * Replace a document with another document by id
+ */
 export function update(
   directory: string,
   tenant: string,

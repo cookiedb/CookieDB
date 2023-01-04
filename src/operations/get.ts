@@ -5,6 +5,9 @@ interface GetOptions {
   expandKeys: boolean;
 }
 
+/**
+ * Gets a document give an id
+ */
 export function get(
   directory: string,
   tenant: string,

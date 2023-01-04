@@ -7,7 +7,8 @@ import {
 } from "./types.ts";
 
 /**
- * This method takes in a document and a schema and validates the document
+ * Takes in a document and a schema and validates the document for the schema definition.
+ * DO NOT USE BY ITSELF, MAKE SURE TO VALIDATE UNIQUE. Use `verifyDocument` alongside this method.
  */
 export function validateDocumentWithSchema(
   meta: Meta,

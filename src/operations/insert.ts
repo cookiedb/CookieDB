@@ -34,6 +34,9 @@ function getValidChunk(
   return chunkName;
 }
 
+/**
+ * Insert a singular document into table. Throws if not valid.
+ */
 export function insert(
   directory: string,
   tenant: string,
@@ -75,6 +78,9 @@ export function insert(
   return key;
 }
 
+/**
+ * Inserts bulk group of documents. Throws if not valid.
+ */
 export function bulkInsert(
   directory: string,
   tenant: string,
