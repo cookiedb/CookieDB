@@ -1,6 +1,9 @@
 import { readMeta, writeMeta } from "../util/fileOperations.ts";
 import { Schema } from "../util/types.ts";
 
+/**
+ * Creates an empty table with an optional schema
+ */
 export function create(
   directory: string,
   tenant: string,

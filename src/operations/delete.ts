@@ -7,6 +7,10 @@ import {
 } from "../util/fileOperations.ts";
 import { unindexDocument } from "../util/indexDocument.ts";
 
+/**
+ * Delete a document by key from a table.
+ * Named this way to avoid naming conflict with javascript built-in.
+ */
 export function del(
   directory: string,
   tenant: string,

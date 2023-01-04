@@ -1,5 +1,8 @@
 import { bold, brightRed, rgb24 } from "../../deps.ts";
 
+/**
+ * Prints the ASCII CookieDB logo with a 16m gradient
+ */
 export function printLogo(gradient: boolean) {
   const logo = " \
   ,-----.              ,--.    ,--.       ,------.  ,-----.   \
@@ -27,6 +30,9 @@ export function printLogo(gradient: boolean) {
   }
 }
 
+/**
+ * Prints an error message to the console
+ */
 export function printError(message: string) {
   console.log(brightRed("error") + ": " + message);
 }

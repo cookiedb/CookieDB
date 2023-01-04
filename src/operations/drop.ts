@@ -5,6 +5,9 @@ import {
   writeMeta,
 } from "../util/fileOperations.ts";
 
+/**
+ * Removes a table and updates the index
+ */
 export function drop(directory: string, tenant: string, table: string) {
   const meta = readMeta(directory, tenant);
 

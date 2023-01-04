@@ -7,6 +7,9 @@ interface ParseTree {
   children: ValidTypes[];
 }
 
+/**
+ * Takes an input condition and a document and returns an abstract syntax tree representation of it
+ */
 export function parseCondition(
   condition: string,
   val: Document,
@@ -114,6 +117,9 @@ export function parseCondition(
   };
 }
 
+/**
+ * Takes an abstract syntax tree and evaluates it
+ */
 export function evaluateCondition(parsedTree: ValidTypes) {
   if (
     typeof parsedTree === "string" || typeof parsedTree === "number" ||

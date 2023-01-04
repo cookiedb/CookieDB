@@ -1,10 +1,13 @@
 import { readMeta } from "../util/fileOperations.ts";
 import { Schema } from "../util/types.ts";
 
+/**
+ * Return metadata for a table or a whole user
+ */
 export function meta(
   directory: string,
   tenant: string,
-  table: string | undefined,
+  table?: string,
 ) {
   const meta = readMeta(directory, tenant);
   if (table) {
