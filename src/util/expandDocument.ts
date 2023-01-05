@@ -10,20 +10,33 @@ export function recursivelyExpandDocument(
   directory: string,
   tenant: string,
   document: Document,
+  showKeys?: boolean,
 ) {
   const metaTable = readMeta(directory, tenant);
 
   for (const [key, value] of Object.entries(document)) {
+    if (key === "key") continue; // If the key is key then no need to expand as this is an identifier
+
     if (typeof value === "string") {
       // assign document[key] to expanded document and call method
       if (Object.hasOwn(metaTable.key_index, value)) {
         const [_, chunkName] = metaTable.key_index[value];
         const chunk = readChunk(directory, tenant, chunkName);
 
+        let subdocument = chunk[value];
+
+        if (showKeys) {
+          subdocument = {
+            ...subdocument,
+            key: value,
+          };
+        }
+
         document[key] = recursivelyExpandDocument(
           directory,
           tenant,
-          chunk[value],
+          subdocument,
+          showKeys,
         );
       }
     } else if (typeof value === "object" && value !== null) {
@@ -31,6 +44,7 @@ export function recursivelyExpandDocument(
         directory,
         tenant,
         document[key] as Document,
+        showKeys,
       );
     }
   }

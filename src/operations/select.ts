@@ -50,11 +50,21 @@ export function select(
         let doc = document;
 
         if (opts.alias && opts.expandKeys) {
-          doc = recursivelyExpandDocument(directory, tenant, doc); // expand keys of document before alias
+          doc = recursivelyExpandDocument(
+            directory,
+            tenant,
+            doc,
+            opts.showKeys,
+          ); // expand keys of document before alias
         }
         if (opts.alias) doc = recursivelyExpandAlias(opts.alias, doc);
         if (opts.expandKeys) {
-          doc = recursivelyExpandDocument(directory, tenant, doc); // expand keys of alias
+          doc = recursivelyExpandDocument(
+            directory,
+            tenant,
+            doc,
+            opts.showKeys,
+          ); // expand keys of alias
         }
         if (opts.showKeys) doc = { ...doc, key };
 
