@@ -544,6 +544,7 @@ Deno.test({
       "age": 19,
       "height": null,
       "best_friend": {
+        "key": bryanKey,
         "name": "Bryan",
         "description": "gigachad",
         "cool": true,
