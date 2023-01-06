@@ -231,7 +231,9 @@ export function deleteUser(
   const configPath = resolve(directory, "./config.json");
   const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
 
-  config.admins.splice(config.admins.indexOf(name), 1);
+  if (config.admins.indexOf(name) !== -1) {
+    config.admins.splice(config.admins.indexOf(name), 1);
+  }
 
   for (const [token, cur_name] of Object.entries(config.users)) {
     if (name === cur_name) {
