@@ -12,6 +12,10 @@ export function create(
 ) {
   const meta = readMeta(directory, tenant);
 
+  if (table.includes(".")) {
+    throw `Table name ${table} is invalid. Table names cannot have a "." in them`;
+  }
+
   // If the table does not already exist, create it
   if (!Object.hasOwn(meta.table_index, table)) {
     meta.table_index[table] = {
