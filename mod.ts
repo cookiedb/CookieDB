@@ -1,10 +1,4 @@
-import {
-  cryptoRandomString,
-  ensureDirSync,
-  resolve,
-  serve,
-  serveTls,
-} from "./deps.ts";
+import { cryptoRandomString, ensureDirSync, serve, serveTls } from "./deps.ts";
 
 import defaultConfig from "./src/defaultConfig.json" assert { type: "json" };
 import { create } from "./src/operations/create.ts";
@@ -14,7 +8,12 @@ import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
 import { del } from "./src/operations/delete.ts";
 import { select } from "./src/operations/select.ts";
-import { deleteTenant, ensureTenant } from "./src/util/fileOperations.ts";
+import {
+  deleteTenant,
+  ensureTenant,
+  readConfig,
+  writeConfig,
+} from "./src/util/fileOperations.ts";
 import { meta } from "./src/operations/meta.ts";
 import { Config } from "./src/util/types.ts";
 import { validateAdmin } from "./src/util/validateAdmin.ts";
@@ -27,10 +26,7 @@ export function init(directory: string) {
   ensureDirSync(directory);
   console.log("Made directory");
   console.log("Generating config...");
-  Deno.writeTextFileSync(
-    resolve(directory, "config.json"),
-    JSON.stringify(defaultConfig, null, 2),
-  );
+  writeConfig(directory, defaultConfig);
   console.log("Generated config");
 }
 
@@ -38,9 +34,9 @@ export function init(directory: string) {
  * Start the CookieDB http server on directory
  */
 export function start(directory: string) {
-  const config: Config = {
+  let config: Config = {
     ...defaultConfig,
-    ...JSON.parse(Deno.readTextFileSync(resolve(directory, "./config.json"))),
+    ...readConfig(directory),
   };
 
   const serveRequest = async (req: Request) => {
@@ -155,6 +151,11 @@ export function start(directory: string) {
             admin: body.admin,
           });
 
+          config = {
+            ...defaultConfig,
+            ...readConfig(directory),
+          };
+
           return new Response(
             JSON.stringify(user),
             { status: 200 },
@@ -166,6 +167,11 @@ export function start(directory: string) {
 
           deleteUser(directory, table);
           deleteTenant(directory, table);
+
+          config = {
+            ...defaultConfig,
+            ...readConfig(directory),
+          };
 
           break;
         }
@@ -197,8 +203,7 @@ export function createUser(
   directory: string,
   opts: { username?: string; token?: string; admin?: boolean },
 ) {
-  const configPath = resolve(directory, "./config.json");
-  const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
+  const config: Config = readConfig(directory);
 
   const username = opts.username ?? cryptoRandomString({ length: 10 });
   let token = opts.token ?? cryptoRandomString({ length: 32, type: "base64" });
@@ -213,7 +218,7 @@ export function createUser(
     config.admins.push(username);
   }
 
-  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2));
+  writeConfig(directory, config);
 
   return {
     username,
@@ -228,8 +233,7 @@ export function deleteUser(
   directory: string,
   name: string,
 ) {
-  const configPath = resolve(directory, "./config.json");
-  const config: Config = JSON.parse(Deno.readTextFileSync(configPath));
+  const config: Config = readConfig(directory);
 
   if (config.admins.indexOf(name) !== -1) {
     config.admins.splice(config.admins.indexOf(name), 1);
@@ -242,7 +246,7 @@ export function deleteUser(
     }
   }
 
-  Deno.writeTextFileSync(configPath, JSON.stringify(config, null, 2));
+  writeConfig(directory, config);
 
   return name;
 }
