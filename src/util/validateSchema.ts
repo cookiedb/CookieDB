@@ -24,6 +24,10 @@ export function validateDocumentWithSchema(
     }, got ${JSON.stringify(Object.keys(document))}`;
   }
 
+  if (Object.hasOwn(document, "key")) {
+    throw `Invalid document provided. Documents cannot have a key value of "key"`;
+  }
+
   for (const [key, value] of Object.entries(document)) {
     if (!Object.hasOwn(schema, key)) {
       throw `Key "${key}" with value "${
@@ -98,7 +102,15 @@ export function validateSchema(schema: unknown) {
     throw `Unexpected value in schema ${typeof schema}`;
   }
 
-  for (const value of Object.values(schema)) {
+  for (const [key, value] of Object.entries(schema)) {
+    if (key.includes(".") || key.includes(",")) {
+      throw `Key ${key} is invalid. Keys cannot have a "." or "," in them`;
+    }
+
+    if (key === "key") {
+      throw `Key ${key} is invalid. Keys cannot be named "key"`;
+    }
+
     if (typeof value === "object") {
       validateSchema(value);
       continue;
