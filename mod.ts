@@ -108,7 +108,7 @@ export function start(directory: string) {
             table,
             {
               maxResults: body.max_results ?? 100,
-              showKeys: body.show_keys ?? false,
+              showKeys: body.show_keys ?? true,
               expandKeys: body.expand_keys ?? false,
               where: body.where ?? "",
               alias: body.alias,
