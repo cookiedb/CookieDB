@@ -367,9 +367,9 @@ to customize the query. Here is an example:
 ```jsonc
 {
   "where": "and(eq($name, 'Bryan'), gt($age, 10))",
-  "max_results": 1, // limits the number of results to a certain value
-  "show_keys": true, // return the keys of documents along with them
-  "expand_keys": true, // automatically join foreign keys with the objects they link to
+  "max_results": 1, // limits the number of results to a certain value (default: -1)
+  "show_keys": false, // return the keys of documents along with them (default: true)
+  "expand_keys": true, // automatically join foreign keys with the objects they link to (default: false)
   "order": {
     "by": "$age", // can be an arbitrary expression
     "descending": true // defaults to false

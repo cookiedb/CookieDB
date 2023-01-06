@@ -443,6 +443,9 @@ Deno.test({
   async fn() {
     let req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
+      body: JSON.stringify({
+        show_keys: false,
+      }),
     });
 
     assertEquals(await req.json(), [
@@ -457,6 +460,7 @@ Deno.test({
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "eq($name, 'Yogi')",
+        show_keys: false,
       }),
     });
 
@@ -471,6 +475,7 @@ Deno.test({
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "gt($age, 10)",
+        show_keys: false,
       }),
     });
 
@@ -509,6 +514,7 @@ Deno.test({
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "or(eq($age, 18), eq($nested.property, 'coder'))",
+        show_keys: false,
       }),
     });
 
@@ -569,6 +575,7 @@ Deno.test({
       body: JSON.stringify({
         where: "or(eq($age, 18), eq($nested.property, 'coder'))",
         max_results: 1,
+        show_keys: false,
       }),
     });
 
@@ -590,6 +597,7 @@ Deno.test({
           ageDoubled: "multiply($age, 2)",
           notCool: "not($cool)",
         },
+        show_keys: false,
       }),
     });
 
@@ -612,6 +620,7 @@ Deno.test({
         order: {
           by: "$age",
         },
+        show_keys: false,
         max_results: 1,
       }),
     });
@@ -630,6 +639,7 @@ Deno.test({
           descending: true,
           by: "$age",
         },
+        show_keys: false,
         max_results: 1,
       }),
     });
