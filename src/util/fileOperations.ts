@@ -1,5 +1,5 @@
 import { deserialize, ensureDirSync, resolve, serialize } from "../../deps.ts";
-import { Chunk, Meta } from "./types.ts";
+import { Chunk, Config, Meta } from "./types.ts";
 
 /**
  * Given a chunk this locates and reads the chunk into memory
@@ -62,6 +62,23 @@ export function readMeta(directory: string, tenant: string): Meta {
 export function writeMeta(directory: string, tenant: string, meta: Meta) {
   const metaPath = resolve(directory, "users", tenant, "__meta__.ck");
   Deno.writeFileSync(metaPath, serialize(meta));
+}
+
+/**
+ * Given a directory, read the config file
+ */
+export function readConfig(directory: string): Config {
+  return JSON.parse(Deno.readTextFileSync(resolve(directory, "./config.json")));
+}
+
+/**
+ * Given a directory and the contents, write to the config file
+ */
+export function writeConfig(directory: string, config: Config) {
+  Deno.writeTextFileSync(
+    resolve(directory, "./config.json"),
+    JSON.stringify(config, null, 2),
+  );
 }
 
 /**
