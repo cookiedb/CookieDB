@@ -403,13 +403,14 @@ Deno.test({
           age: 13,
           cool: true,
           description: "The best avenger",
+          ooga: "hello",
         }),
       },
     );
 
     assertEquals(
       await req.text(),
-      'Schema and document have different keys. Expected ["name","description","cool","exists","age","height","best_friend","nested"], got ["name","age","cool","description"]',
+      'Schema and document have different keys. Expected ["name","description","cool","exists","age","height","best_friend","nested"], got ["name","description","cool","exists","age","height","best_friend","nested","ooga"]',
     );
 
     req = await fetch(
@@ -417,17 +418,7 @@ Deno.test({
       {
         ...basicFetchOptions,
         body: JSON.stringify({
-          name: "Olek",
-          description: null,
-          cool: true,
-          exists: null,
           age: 19,
-          height: null,
-          best_friend: bryanKey,
-          nested: {
-            property: "coder",
-            another_level: { property: "coder again" },
-          },
         }),
       },
     );
