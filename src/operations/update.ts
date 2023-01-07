@@ -1,3 +1,4 @@
+import { deepmerge } from "../../deps.ts";
 import { readChunk, readMeta, writeChunk } from "../util/fileOperations.ts";
 import {
   indexDocument,
@@ -8,7 +9,7 @@ import { Document } from "../util/types.ts";
 import { validateDocumentWithSchema } from "../util/validateSchema.ts";
 
 /**
- * Replace a document with another document by id
+ * Update a document with another document by id
  */
 export function update(
   directory: string,
@@ -30,18 +31,20 @@ export function update(
 
   const schema = meta.table_index[table].schema;
 
-  if (schema) {
-    validateDocumentWithSchema(meta, document, schema);
-    verifyDocument(document, schema, meta, table, key);
-  }
-
   const chunk = readChunk(directory, tenant, chunkName);
+  const oldDocument = chunk[key];
+  const newDocument = deepmerge(oldDocument, document);
 
   if (schema) {
-    unindexDocument(chunk[key], schema, meta, table);
-    indexDocument(document, schema, meta, table, key);
+    // Verify that this is a valid document after merge
+    validateDocumentWithSchema(meta, newDocument, schema);
+    verifyDocument(newDocument, schema, meta, table, key);
+
+    // Rebuild indexes
+    unindexDocument(oldDocument, schema, meta, table);
+    indexDocument(newDocument, schema, meta, table, key);
   }
-  chunk[key] = document;
+  chunk[key] = newDocument;
   writeChunk(directory, tenant, chunkName, chunk);
 
   return key;
