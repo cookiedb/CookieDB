@@ -1,4 +1,4 @@
-import { assertEquals } from "./deps.ts";
+import { assert, assertEquals } from "./deps.ts";
 import { createUser, init, start } from "./mod.ts";
 import { readMeta } from "./src/util/fileOperations.ts";
 
@@ -755,7 +755,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "Able to create and delete users",
+  name: "Able to create, regenerate, and delete users",
   async fn() {
     let req = await fetch(
       `http://localhost:8777/create_user`,
@@ -770,6 +770,20 @@ Deno.test({
     );
 
     const user = await req.json();
+
+    req = await fetch(
+      `http://localhost:8777/regenerate_user/${user.username}`,
+      basicFetchOptions,
+    );
+
+    assertEquals(await req.text(), "You are not an admin of this database");
+
+    req = await fetch(
+      `http://localhost:8777/regenerate_user/${user.username}`,
+      adminFetchOptions,
+    );
+
+    assert(await req.text());
 
     req = await fetch(
       `http://localhost:8777/delete_user`,

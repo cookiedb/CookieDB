@@ -396,31 +396,6 @@ const req = await fetch("/select/users", {
 const res = await req.json(); // list of matching documents, ex: [{ name: "Bryan", description: "Just a cool guy", is_cool: true, age: 18, best_friend: null, nested: { property: "builder"}}]
 ```
 
-#### POST: `/create_user/`
-
-Note: You must have an admin key to use this route
-
-Creates a user with an optional username and api token.
-
-```json
-{
-  "username": "test_user",
-  "token": "a_randomly_generated_token"
-}
-```
-
-#### POST: `/delete_user/:username:`
-
-Note: You must have an admin key to use this route
-
-Deletes a user with by username
-
-```json
-{
-  "username": "test_user"
-}
-```
-
 ### Expressions
 
 We see here that we can query parts of objects using some simple expressions.
@@ -603,3 +578,57 @@ There are quite a few operators:
   - ex: `eq(sqrt(4), 2)`
 
 \* May not work as described due to technicalities
+
+### Admin Routes
+
+You must have an admin key to use these route. These are mostly for user
+management and have very little to do with everyday database operations.
+
+#### POST: `/create_user/`
+
+Creates a user with an optional username and api token.
+
+```javascript
+const req = await fetch("/create_user", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${adminToken}`,
+  },
+  body: JSON.stringify({
+    "username": "test_user",
+    "token": "a_randomly_generated_token",
+  }),
+});
+
+const res = await req.json(); // { username: "test_user", token: "a_randomly_generated_token" }
+```
+
+#### POST: `/regenerate_user/:username:`
+
+Regenerates a user's token by username.
+
+```javascript
+const req = await fetch("/regenerate_user/test_user", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${adminToken}`,
+  },
+});
+
+const res = await req.json(); // { username: "test_user", token: "asiudhasd8ushdaihdss" }
+```
+
+#### POST: `/delete_user/:username:`
+
+Deletes a user with by username
+
+```javascript
+const req = await fetch("/delete_user/test_user", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${adminToken}`,
+  },
+});
+
+const res = await req.json(); // "success"
+```

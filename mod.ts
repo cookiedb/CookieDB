@@ -162,6 +162,24 @@ export function start(directory: string) {
           );
         }
 
+        case "regenerate_user": {
+          body = body ?? {};
+
+          validateAdmin(tenant, config);
+
+          const user = regenerateUser(directory, table);
+
+          config = {
+            ...defaultConfig,
+            ...readConfig(directory),
+          };
+
+          return new Response(
+            JSON.stringify(user),
+            { status: 200 },
+          );
+        }
+
         case "delete_user": {
           validateAdmin(tenant, config);
 
@@ -222,6 +240,36 @@ export function createUser(
 
   return {
     username,
+    token,
+  };
+}
+
+/**
+ * Regenerates a user's token
+ */
+export function regenerateUser(
+  directory: string,
+  username: string,
+) {
+  const config: Config = readConfig(directory);
+  let token = cryptoRandomString({ length: 32, type: "base64" });
+
+  while (Object.hasOwn(config.users, token)) {
+    token = cryptoRandomString({ length: 32, type: "base64" });
+  }
+
+  for (const [token, user] of Object.entries(config.users)) {
+    if (user === username) {
+      delete config.users[token];
+    }
+  }
+
+  config.users[token] = username;
+
+  writeConfig(directory, config);
+
+  return {
+    username: username,
     token,
   };
 }
