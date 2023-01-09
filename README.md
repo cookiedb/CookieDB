@@ -315,7 +315,7 @@ const req = await fetch("/meta/users", {
   },
 });
 
-const res = await req.json(); // { name: "string", description: "nullable string", is_cool: "boolean", age: "number", best_friend: "nullable foreign_key", nested: { property: "string"}}
+const res = await req.json(); // { schema: { name: "string", description: "nullable string", is_cool: "boolean", age: "number", best_friend: "nullable foreign_key", nested: { property: "string"}}, size: 441 }
 ```
 
 #### POST: `/select/:table:`

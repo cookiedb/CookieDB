@@ -1,3 +1,4 @@
+import { resolve } from "../../deps.ts";
 import { readMeta } from "../util/fileOperations.ts";
 import { Schema } from "../util/types.ts";
 
@@ -9,23 +10,40 @@ export function meta(
   tenant: string,
   table?: string,
 ) {
+  let size = 0;
+  const tenantDir = resolve(directory, "users", tenant);
   const meta = readMeta(directory, tenant);
   if (table) {
     if (!Object.hasOwn(meta.table_index, table)) {
       throw `Cannot read metadata for non-existent table ${table}`;
     }
 
+    for (const chunk of meta.table_index[table].chunks) {
+      size += Deno.statSync(resolve(tenantDir, chunk + ".ck")).size;
+    }
+
     return {
       schema: meta.table_index[table].schema,
+      size,
     };
   }
 
-  const result: Record<string, {
-    schema: Schema | null;
-  }> = {};
+  for (const file of Deno.readDirSync(tenantDir)) {
+    size += Deno.statSync(resolve(tenantDir, file.name)).size;
+  }
+
+  const result: {
+    schemas: Record<string, {
+      schema: Schema | null;
+    }>;
+    size: number;
+  } = {
+    schemas: {},
+    size,
+  };
 
   for (const [tableName, tableContent] of Object.entries(meta.table_index)) {
-    result[tableName] = {
+    result.schemas[tableName] = {
       schema: tableContent.schema,
     };
   }
