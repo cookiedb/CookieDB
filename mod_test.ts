@@ -675,7 +675,7 @@ Deno.test({
       basicFetchOptions,
     );
 
-    assertEquals(await req.json(), { schema: null });
+    assertEquals(await req.json(), { schema: null, size: 441 });
 
     req = await fetch(
       `http://localhost:8777/meta/tableWithSchema`,
@@ -693,6 +693,7 @@ Deno.test({
         best_friend: "nullable foreign_key",
         nested: { property: "string", another_level: { property: "string" } },
       },
+      size: 222,
     });
 
     req = await fetch(
@@ -701,19 +702,25 @@ Deno.test({
     );
 
     assertEquals(await req.json(), {
-      table: { schema: null },
-      tableWithSchema: {
-        schema: {
-          name: "unique string",
-          description: "nullable string",
-          cool: "boolean",
-          exists: "nullable boolean",
-          age: "number",
-          height: "nullable number",
-          best_friend: "nullable foreign_key",
-          nested: { property: "string", another_level: { property: "string" } },
+      schemas: {
+        table: { schema: null },
+        tableWithSchema: {
+          schema: {
+            name: "unique string",
+            description: "nullable string",
+            cool: "boolean",
+            exists: "nullable boolean",
+            age: "number",
+            height: "nullable number",
+            best_friend: "nullable foreign_key",
+            nested: {
+              property: "string",
+              another_level: { property: "string" },
+            },
+          },
         },
       },
+      size: 1733,
     });
   },
   sanitizeResources: false,
