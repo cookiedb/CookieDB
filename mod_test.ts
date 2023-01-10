@@ -702,7 +702,7 @@ Deno.test({
     );
 
     assertEquals(await req.json(), {
-      schemas: {
+      tables: {
         table: { schema: null },
         tableWithSchema: {
           schema: {
