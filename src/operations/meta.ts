@@ -33,17 +33,17 @@ export function meta(
   }
 
   const result: {
-    schemas: Record<string, {
+    tables: Record<string, {
       schema: Schema | null;
     }>;
     size: number;
   } = {
-    schemas: {},
+    tables: {},
     size,
   };
 
   for (const [tableName, tableContent] of Object.entries(meta.table_index)) {
-    result.schemas[tableName] = {
+    result.tables[tableName] = {
       schema: tableContent.schema,
     };
   }
