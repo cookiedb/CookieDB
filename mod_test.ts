@@ -779,14 +779,14 @@ Deno.test({
     const user = await req.json();
 
     req = await fetch(
-      `http://localhost:8777/regenerate_user/${user.username}`,
+      `http://localhost:8777/regenerate_token/${user.username}`,
       basicFetchOptions,
     );
 
     assertEquals(await req.text(), "You are not an admin of this database");
 
     req = await fetch(
-      `http://localhost:8777/regenerate_user/${user.username}`,
+      `http://localhost:8777/regenerate_token/${user.username}`,
       adminFetchOptions,
     );
 

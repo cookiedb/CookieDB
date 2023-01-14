@@ -162,24 +162,6 @@ export function start(directory: string) {
           );
         }
 
-        case "regenerate_user": {
-          body = body ?? {};
-
-          validateAdmin(tenant, config);
-
-          const user = regenerateUser(directory, table);
-
-          config = {
-            ...defaultConfig,
-            ...readConfig(directory),
-          };
-
-          return new Response(
-            JSON.stringify(user),
-            { status: 200 },
-          );
-        }
-
         case "delete_user": {
           validateAdmin(tenant, config);
 
@@ -192,6 +174,24 @@ export function start(directory: string) {
           };
 
           break;
+        }
+
+        case "regenerate_token": {
+          body = body ?? {};
+
+          validateAdmin(tenant, config);
+
+          const user = regenerateToken(directory, table);
+
+          config = {
+            ...defaultConfig,
+            ...readConfig(directory),
+          };
+
+          return new Response(
+            JSON.stringify(user),
+            { status: 200 },
+          );
         }
       }
       return new Response("success", { status: 200 });
@@ -245,9 +245,34 @@ export function createUser(
 }
 
 /**
+ * Delete a database user in a directory
+ */
+export function deleteUser(
+  directory: string,
+  name: string,
+) {
+  const config: Config = readConfig(directory);
+
+  if (config.admins.indexOf(name) !== -1) {
+    config.admins.splice(config.admins.indexOf(name), 1);
+  }
+
+  for (const [token, cur_name] of Object.entries(config.users)) {
+    if (name === cur_name) {
+      delete config.users[token];
+      break;
+    }
+  }
+
+  writeConfig(directory, config);
+
+  return name;
+}
+
+/**
  * Regenerates a user's token
  */
-export function regenerateUser(
+export function regenerateToken(
   directory: string,
   username: string,
 ) {
@@ -272,29 +297,4 @@ export function regenerateUser(
     username: username,
     token,
   };
-}
-
-/**
- * Delete a database user in a directory
- */
-export function deleteUser(
-  directory: string,
-  name: string,
-) {
-  const config: Config = readConfig(directory);
-
-  if (config.admins.indexOf(name) !== -1) {
-    config.admins.splice(config.admins.indexOf(name), 1);
-  }
-
-  for (const [token, cur_name] of Object.entries(config.users)) {
-    if (name === cur_name) {
-      delete config.users[token];
-      break;
-    }
-  }
-
-  writeConfig(directory, config);
-
-  return name;
 }
