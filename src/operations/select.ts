@@ -8,7 +8,6 @@ import { Alias, Document } from "../util/types.ts";
 
 interface QueryOptions {
   maxResults: number;
-  showKeys: boolean;
   expandKeys: boolean;
   where: string;
   alias?: Alias;
@@ -54,7 +53,6 @@ export function select(
             directory,
             tenant,
             doc,
-            opts.showKeys,
           ); // expand keys of document before alias
         }
         if (opts.alias) doc = recursivelyExpandAlias(opts.alias, doc);
@@ -63,10 +61,9 @@ export function select(
             directory,
             tenant,
             doc,
-            opts.showKeys,
           ); // expand keys of alias
         }
-        if (opts.showKeys) doc = { ...doc, key };
+        doc = { ...doc, key };
 
         results.push(doc);
       }

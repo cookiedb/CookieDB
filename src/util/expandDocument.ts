@@ -10,7 +10,6 @@ export function recursivelyExpandDocument(
   directory: string,
   tenant: string,
   document: Document,
-  showKeys?: boolean,
 ) {
   const metaTable = readMeta(directory, tenant);
 
@@ -25,18 +24,15 @@ export function recursivelyExpandDocument(
 
         let subdocument = chunk[value];
 
-        if (showKeys) {
-          subdocument = {
-            ...subdocument,
-            key: value,
-          };
-        }
+        subdocument = {
+          ...subdocument,
+          key: value,
+        };
 
         document[key] = recursivelyExpandDocument(
           directory,
           tenant,
           subdocument,
-          showKeys,
         );
       }
     } else if (typeof value === "object" && value !== null) {
@@ -44,7 +40,6 @@ export function recursivelyExpandDocument(
         directory,
         tenant,
         document[key] as Document,
-        showKeys,
       );
     }
   }
