@@ -121,6 +121,8 @@ Deno.test({
   sanitizeOps: false,
 });
 
+let yogiKeys: string[] = [];
+
 Deno.test({
   name: "Able to bulk insert into a table",
   async fn() {
@@ -155,7 +157,7 @@ Deno.test({
     });
 
     assertEquals(req.status, 200);
-    await req.text();
+    yogiKeys = await req.json();
   },
   sanitizeResources: false,
   sanitizeOps: false,
@@ -327,6 +329,7 @@ Deno.test({
       age: 12,
       cool: true,
       description: "The best avenger",
+      key: yogiKey,
     });
 
     req = await fetch(
@@ -343,6 +346,7 @@ Deno.test({
       height: null,
       best_friend: bryanKey,
       nested: { property: "coder", another_level: { property: "coder again" } },
+      key: olekKey,
     });
 
     req = await fetch(`http://localhost:8777/get/tableWithSchema/${olekKey}`, {
@@ -371,8 +375,10 @@ Deno.test({
           property: "builder",
           another_level: { property: "builder again" },
         },
+        key: bryanKey,
       },
       nested: { property: "coder", another_level: { property: "coder again" } },
+      key: olekKey,
     });
   },
   sanitizeResources: false,
@@ -434,39 +440,65 @@ Deno.test({
   async fn() {
     let req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
-      body: JSON.stringify({
-        show_keys: false,
-      }),
     });
 
     assertEquals(await req.json(), [
-      { name: "Yogi", age: 13, cool: true, description: "The best avenger" },
-      { name: "Yogi1", age: 13, cool: true, description: "The best avenger" },
-      { name: "Yogi2", age: 14, cool: true, description: "The best avenger" },
-      { name: "Yogi3", age: 15, cool: true, description: "The best avenger" },
-      { name: "Yogi4", age: 16, cool: true, description: "The best avenger" },
+      {
+        name: "Yogi",
+        age: 13,
+        cool: true,
+        description: "The best avenger",
+        key: yogiKey,
+      },
+      {
+        name: "Yogi1",
+        age: 13,
+        cool: true,
+        description: "The best avenger",
+        key: yogiKeys[0],
+      },
+      {
+        name: "Yogi2",
+        age: 14,
+        cool: true,
+        description: "The best avenger",
+        key: yogiKeys[1],
+      },
+      {
+        name: "Yogi3",
+        age: 15,
+        cool: true,
+        description: "The best avenger",
+        key: yogiKeys[2],
+      },
+      {
+        name: "Yogi4",
+        age: 16,
+        cool: true,
+        description: "The best avenger",
+        key: yogiKeys[3],
+      },
     ]);
 
     req = await fetch(`http://localhost:8777/select/table`, {
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "eq($name, 'Yogi')",
-        show_keys: false,
       }),
     });
 
     assertEquals(await req.json(), [{
-      "name": "Yogi",
-      "age": 13,
-      "cool": true,
-      "description": "The best avenger",
+      name: "Yogi",
+      age: 13,
+      cool: true,
+      description: "The best avenger",
+      key: yogiKey,
     }]);
 
     req = await fetch(`http://localhost:8777/select/tableWithSchema`, {
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "gt($age, 10)",
-        show_keys: false,
       }),
     });
 
@@ -483,6 +515,7 @@ Deno.test({
           property: "builder",
           another_level: { property: "builder again" },
         },
+        key: bryanKey,
       },
       {
         name: "Olek",
@@ -496,6 +529,7 @@ Deno.test({
           property: "coder",
           another_level: { property: "coder again" },
         },
+        key: olekKey,
       },
     ];
 
@@ -505,7 +539,6 @@ Deno.test({
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "or(eq($age, 18), eq($nested.property, 'coder'))",
-        show_keys: false,
       }),
     });
 
@@ -515,7 +548,6 @@ Deno.test({
       ...basicFetchOptions,
       body: JSON.stringify({
         where: "or(eq($age, 18), eq($nested.property, 'coder'))",
-        show_keys: true,
         expand_keys: true,
       }),
     });
@@ -566,7 +598,6 @@ Deno.test({
       body: JSON.stringify({
         where: "or(eq($age, 18), eq($nested.property, 'coder'))",
         max_results: 1,
-        show_keys: false,
       }),
     });
 
@@ -588,14 +619,14 @@ Deno.test({
           ageDoubled: "multiply($age, 2)",
           notCool: "not($cool)",
         },
-        show_keys: false,
       }),
     });
 
     assertEquals(await req.json(), [{
-      "name": "Yogi",
-      "ageDoubled": 26,
-      "notCool": false,
+      name: "Yogi",
+      ageDoubled: 26,
+      notCool: false,
+      key: yogiKey,
     }]);
   },
   sanitizeResources: false,
@@ -611,7 +642,6 @@ Deno.test({
         order: {
           by: "$age",
         },
-        show_keys: false,
         max_results: 1,
       }),
     });
@@ -621,6 +651,7 @@ Deno.test({
       age: 16,
       cool: true,
       description: "The best avenger",
+      key: yogiKeys[3],
     }]);
 
     req = await fetch(`http://localhost:8777/select/table`, {
@@ -630,7 +661,6 @@ Deno.test({
           descending: true,
           by: "$age",
         },
-        show_keys: false,
         max_results: 1,
       }),
     });
@@ -640,6 +670,7 @@ Deno.test({
       age: 13,
       cool: true,
       description: "The best avenger",
+      key: yogiKey,
     }]);
   },
   sanitizeResources: false,

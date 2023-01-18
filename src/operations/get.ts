@@ -28,12 +28,18 @@ export function get(
 
   const chunk = readChunk(directory, tenant, chunkName);
 
+  let document = chunk[key];
+
   if (opts.expandKeys) {
-    return recursivelyExpandDocument(
+    document = recursivelyExpandDocument(
       directory,
       tenant,
-      chunk[key],
+      document,
     );
   }
-  return chunk[key];
+
+  return {
+    ...document,
+    key,
+  };
 }
