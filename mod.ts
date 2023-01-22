@@ -6,7 +6,7 @@ import { bulkInsert, insert } from "./src/operations/insert.ts";
 import { get } from "./src/operations/get.ts";
 import { update } from "./src/operations/update.ts";
 import { drop } from "./src/operations/drop.ts";
-import { del } from "./src/operations/delete.ts";
+import { deleteByKey, deleteByQuery } from "./src/operations/delete.ts";
 import { select } from "./src/operations/select.ts";
 import {
   deleteTenant,
@@ -119,8 +119,27 @@ export function start(directory: string) {
         }
 
         case "delete": {
-          del(directory, tenant, table, key);
-          break;
+          let res: Response | undefined;
+          if (key) {
+            return new Response(
+              JSON.stringify(deleteByKey(directory, tenant, table, key)),
+              { status: 200 },
+            );
+          }
+
+          if (body.where) {
+            return new Response(
+              JSON.stringify(
+                deleteByQuery(directory, tenant, table, body.where),
+              ),
+              { status: 200 },
+            );
+          }
+
+          if (!res) {
+            throw "You must include either a key or a query";
+          }
+          return res;
         }
 
         case "get": {

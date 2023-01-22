@@ -685,14 +685,33 @@ Deno.test({
       basicFetchOptions,
     );
 
-    assertEquals(await req.text(), "success");
+    assertEquals(await req.json(), yogiKey);
 
     req = await fetch(
       `http://localhost:8777/delete/tableWithSchema/${olekKey}`,
       basicFetchOptions,
     );
 
-    assertEquals(await req.text(), "success");
+    assertEquals(await req.json(), olekKey);
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
+});
+
+Deno.test({
+  name: "Able to delete documents by key",
+  async fn() {
+    const req = await fetch(
+      `http://localhost:8777/delete/table`,
+      {
+        ...basicFetchOptions,
+        body: JSON.stringify({
+          where: "starts_with($name, 'Yogi')",
+        }),
+      },
+    );
+
+    assertEquals((await req.json()).sort(), yogiKeys.sort());
   },
   sanitizeResources: false,
   sanitizeOps: false,
@@ -706,7 +725,7 @@ Deno.test({
       basicFetchOptions,
     );
 
-    assertEquals(await req.json(), { schema: null, size: 441 });
+    assertEquals(await req.json(), { schema: null, size: 0 });
 
     req = await fetch(
       `http://localhost:8777/meta/tableWithSchema`,
@@ -751,7 +770,7 @@ Deno.test({
           },
         },
       },
-      size: 1733,
+      size: 848,
     });
   },
   sanitizeResources: false,
