@@ -9,3 +9,9 @@ http server.
 ## Documentation
 
 The documentation can be found at https://docs.cookiedb.com.
+
+TODO UPDATE DOCS
+
+- tables no longer have any naming requirements
+- autonull will exist
+- editing tables (maybe talk about perf)

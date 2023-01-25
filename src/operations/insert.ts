@@ -30,6 +30,7 @@ function getValidChunk(
   // If there is not, make a new chunk
   const chunkName = crypto.randomUUID();
   meta.table_index[table].chunks.push(chunkName);
+  meta.chunk_index[chunkName] = table;
   writeChunk(directory, tenant, chunkName, {});
   return chunkName;
 }
@@ -65,7 +66,7 @@ export function insert(
     opts.maxDocumentsPerChunk,
   );
 
-  meta.key_index[key] = [table, chunkName];
+  meta.key_index[key] = chunkName;
 
   if (schema) indexDocument(document, schema, meta, table, key);
 
@@ -113,7 +114,7 @@ export function bulkInsert(
 
     const key = crypto.randomUUID();
 
-    meta.key_index[key] = [table, chunkName];
+    meta.key_index[key] = chunkName;
     chunk[key] = document;
 
     if (schema) indexDocument(document, schema, meta, table, key);

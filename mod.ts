@@ -17,6 +17,7 @@ import {
 import { meta } from "./src/operations/meta.ts";
 import { Config } from "./src/util/types.ts";
 import { validateAdmin } from "./src/util/validateAdmin.ts";
+import { edit } from "./src/operations/edit.ts";
 
 /**
  * Initialize CookieDB in directory
@@ -158,6 +159,16 @@ export function start(directory: string) {
           );
         }
 
+        case "edit": {
+          body = body ?? {};
+          edit(directory, tenant, table, {
+            name: body.name,
+            schema: body.schema,
+            alias: body.alias,
+          });
+          break;
+        }
+
         case "create_user": {
           body = body ?? {};
 
@@ -212,10 +223,10 @@ export function start(directory: string) {
           );
         }
       }
-      return new Response("success", { status: 200 });
-    } catch (err) {
-      if (config.log) console.error(err);
-      return new Response(err, { status: 400 });
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
+    } catch (error) {
+      if (config.log) console.error(error);
+      return new Response(JSON.stringify({ error }), { status: 400 });
     }
   };
 

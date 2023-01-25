@@ -53,14 +53,36 @@ export type PossibleTypes = string | boolean | number | null;
 
 /**
  * The type definition of a tenants's index
+ * ```
+ * {
+ *  key_index: {
+ *    'ex_key': 'chunk_name'
+ *  },
+ *  table_index: {
+ *    'table_name': {
+ *      'schema': null,
+ *      'chunks': ['chunk_name'],
+ *      'value_index': {
+ *        'example_property': {
+ *          'example_value': 'ex_key'
+ *        }
+ *      }
+ *    }
+ *  },
+ *  chunk_index: {
+ *    'chunk_name': 'table_name'
+ *  }
+ * }
+ * ```
  */
 export interface Meta {
-  key_index: Record<string, [string, string]>;
-  row_index: Record<string, Record<string, string>>;
+  key_index: Record<string, string>;
   table_index: Record<string, {
     schema: Schema | null;
     chunks: string[];
+    value_index: Record<string, Record<string, string>>;
   }>;
+  chunk_index: Record<string, string>;
 }
 
 /**
