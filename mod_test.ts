@@ -60,7 +60,7 @@ Deno.test({
 Deno.test({
   name: "Able to create a table",
   async fn() {
-    let req = await fetch(
+    const req = await fetch(
       "http://localhost:8777/create/table",
       basicFetchOptions,
     );
