@@ -30,15 +30,6 @@ export function edit(
 
   const tableMeta = meta.table_index[table];
 
-  if (opts.name) {
-    delete meta.table_index[table];
-    meta.table_index[opts.name] = tableMeta;
-
-    for (const chunkName of tableMeta.chunks) {
-      meta.chunk_index[chunkName] = opts.name;
-    }
-  }
-
   // Get the current schema
   const schema = opts.schema === undefined
     ? tableMeta.schema
@@ -68,6 +59,15 @@ export function edit(
         chunk[key] = recursivelyExpandAlias(opts.alias, chunk[key]);
       }
       writeChunk(directory, tenant, chunkName, chunk);
+    }
+  }
+
+  if (opts.name) {
+    delete meta.table_index[table];
+    meta.table_index[opts.name] = tableMeta;
+
+    for (const chunkName of tableMeta.chunks) {
+      meta.chunk_index[chunkName] = opts.name;
     }
   }
 
