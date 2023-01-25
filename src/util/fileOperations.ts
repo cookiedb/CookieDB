@@ -96,8 +96,8 @@ export function ensureTenant(directory: string, tenant: string) {
   } catch (_err) {
     writeMeta(directory, tenant, {
       key_index: {},
-      row_index: {},
       table_index: {},
+      chunk_index: {},
     });
   }
 }

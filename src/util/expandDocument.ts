@@ -19,7 +19,7 @@ export function recursivelyExpandDocument(
     if (typeof value === "string") {
       // assign document[key] to expanded document and call method
       if (Object.hasOwn(metaTable.key_index, value)) {
-        const [_, chunkName] = metaTable.key_index[value];
+        const chunkName = metaTable.key_index[value];
         const chunk = readChunk(directory, tenant, chunkName);
 
         let subdocument = chunk[value];

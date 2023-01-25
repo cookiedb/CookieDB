@@ -10,18 +10,18 @@ function iterateThroughDocument(
   document: Document,
   schema: Schema,
   meta: Meta,
-  table: string,
   callback: (key: string, value: PossibleTypes) => void,
+  parent_key?: string,
 ) {
   for (const [key, value] of Object.entries(schema)) {
-    const cur_key = table + "." + key;
+    const cur_key = parent_key ? parent_key + "." + key : key;
     const subdocument = document[key];
 
     if (
       typeof value === "object" && typeof subdocument === "object" &&
       subdocument !== null
     ) {
-      iterateThroughDocument(subdocument, value, meta, cur_key, callback);
+      iterateThroughDocument(subdocument, value, meta, callback, cur_key);
       continue;
     }
 
@@ -48,9 +48,9 @@ export function indexDocument(
   table: string,
   id: string,
 ) {
-  iterateThroughDocument(document, schema, meta, table, (key, value) => {
-    if (!Object.hasOwn(meta.row_index, key)) {
-      meta.row_index[key] = {};
+  iterateThroughDocument(document, schema, meta, (key, value) => {
+    if (!Object.hasOwn(meta.table_index[table].value_index, key)) {
+      meta.table_index[table].value_index[key] = {};
     }
 
     if (value === null) {
@@ -65,7 +65,7 @@ export function indexDocument(
       value = "true";
     }
 
-    meta.row_index[key][value] = id;
+    meta.table_index[table].value_index[key][value] = id;
   });
 }
 
@@ -78,8 +78,8 @@ export function unindexDocument(
   meta: Meta,
   table: string,
 ) {
-  iterateThroughDocument(document, schema, meta, table, (key, value) => {
-    if (!Object.hasOwn(meta.row_index, key)) return;
+  iterateThroughDocument(document, schema, meta, (key, value) => {
+    if (!Object.hasOwn(meta.table_index[table].value_index[key], key)) return;
 
     if (value === null) {
       value = "null";
@@ -93,7 +93,7 @@ export function unindexDocument(
       value = "true";
     }
 
-    delete meta.row_index[key][value];
+    delete meta.table_index[table].value_index[key][value];
   });
 }
 
@@ -107,8 +107,9 @@ export function verifyDocument(
   table: string,
   id = "",
 ) {
-  iterateThroughDocument(document, schema, meta, table, (key, value) => {
-    if (!Object.hasOwn(meta.row_index, key)) return;
+  iterateThroughDocument(document, schema, meta, (key, value) => {
+    if (!meta.table_index[table].value_index[key]) return;
+    if (!Object.hasOwn(meta.table_index[table].value_index[key], key)) return;
 
     if (value === null) {
       value = "null";
@@ -122,8 +123,8 @@ export function verifyDocument(
       value = "true";
     }
 
-    if (Object.hasOwn(meta.row_index[key], value)) {
-      if (id && meta.row_index[key][value] === id) return;
+    if (Object.hasOwn(meta.table_index[table].value_index[key], value)) {
+      if (id && meta.table_index[table].value_index[key][value] === id) return;
       throw `Field is not unique despite schema specifying it to be unique, ${value}`;
     }
   });

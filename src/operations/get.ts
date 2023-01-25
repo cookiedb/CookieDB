@@ -20,7 +20,8 @@ export function get(
   if (!Object.hasOwn(meta.key_index, key)) {
     throw `No such key "${key}"`;
   }
-  const [tableName, chunkName] = meta.key_index[key];
+  const chunkName = meta.key_index[key];
+  const tableName = meta.chunk_index[chunkName];
 
   if (tableName !== table) {
     throw `No such key "${key}" in table "${table}"`;

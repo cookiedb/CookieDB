@@ -23,7 +23,8 @@ export function deleteByKey(
   if (!Object.hasOwn(meta.key_index, key)) {
     throw `No such key "${key}"`;
   }
-  const [tableName, chunkName] = meta.key_index[key];
+  const chunkName = meta.key_index[key];
+  const tableName = meta.chunk_index[chunkName];
 
   if (tableName !== table) {
     throw `No such key "${key}" in table "${table}"`;
@@ -49,6 +50,7 @@ export function deleteByKey(
 
     const index = meta.table_index[table].chunks.indexOf(chunkName);
     meta.table_index[table].chunks.splice(index, 1);
+    delete meta.chunk_index[chunkName];
   } else {
     writeChunk(directory, tenant, chunkName, chunk);
   }
@@ -80,7 +82,7 @@ export function deleteByQuery(
 
   for (const document of documents) {
     const key = document.key as string;
-    const chunkName = meta.key_index[key][1];
+    const chunkName = meta.key_index[key];
 
     // Delete key from key_index
     delete meta.key_index[key];
@@ -104,6 +106,7 @@ export function deleteByQuery(
 
       const index = meta.table_index[table].chunks.indexOf(chunkName);
       meta.table_index[table].chunks.splice(index, 1);
+      delete meta.chunk_index[chunkName];
     } else {
       writeChunk(directory, tenant, chunkName, chunk);
     }
